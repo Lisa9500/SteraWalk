@@ -42,17 +42,20 @@ func OrthoAngle(orthoXY [][]float64, faceXY [][]float64) (isecX, isecY, theta fl
 	log.Println("isecY=", isecY)
 
 	// ベクトルA　交点とL1点を結ぶベクトル
-	vectAX, vectAY, vectA := VectLen(orthoXY[0][0], orthoXY[0][1], isecX, isecY)
+	// vectAX, vectAY, vectA := VectLen(faceXY[0][0], faceXY[0][1], isecX, isecY)
+	vectAX, vectAY, _ := VectLen(faceXY[1][0], faceXY[1][1], isecX, isecY)
 	// log.Println("vectAX=", vectAX) // Ctrl+/
 	// log.Println("vectAY=", vectAY) // Ctrl+/
 	// log.Println("vectA=", vectA)   // Ctrl+/
 	// ベクトルB　交点と３つ目の点を結ぶベクトル
-	vectBX, vectBY, vectB := VectLen(faceXY[0][0], faceXY[0][1], isecX, isecY)
+	// vectBX, vectBY, vectB := VectLen(orthoXY[0][0], orthoXY[0][1], isecX, isecY)
+	vectBX, vectBY, _ := VectLen(orthoXY[0][0], orthoXY[0][1], isecX, isecY)
 	// log.Println("vectBX=", vectBX) // Ctrl+/
 	// log.Println("vectBY=", vectBY) // Ctrl+/
 	// log.Println("vectB=", vectB)   // Ctrl+/
 	// 内積を計算して交差する角度を求める
-	theta = CalcTheta(vectAX, vectAY, vectBX, vectBY, vectA, vectB)
+	// theta = CalcTheta(vectAX, vectAY, vectBX, vectBY, vectA, vectB)
+	theta = CrossAngl(vectAX, vectAY, vectBX, vectBY)
 	log.Println("theta=", theta)
 
 	return isecX, isecY, theta

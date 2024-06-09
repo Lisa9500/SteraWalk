@@ -6,14 +6,17 @@ func LineEquat(x1, y1, x2, y2 float64) (line map[string]float64) {
 	line = map[string]float64{}
 	if y1 == y2 {
 		// x軸に平行な直線
-		line["y"] = y1
-	} else if x1 == x2 {
-		// y軸に平行な直線
-		line["x"] = x1
-	} else {
-		// y = mx + n
-		line["m"] = (y2 - y1) / (x2 - x1)
-		line["n"] = y1 - line["m"]*x1
+		// line["y"] = y1
+		y1 = y1 + 0.0001
 	}
+	if x1 == x2 {
+		// y軸に平行な直線
+		// line["x"] = x1
+		x1 = x1 + 0.0001
+	}
+	// y = mx + n
+	line["m"] = (y2 - y1) / (x2 - x1)
+	line["n"] = y1 - line["m"]*x1
+
 	return line
 }

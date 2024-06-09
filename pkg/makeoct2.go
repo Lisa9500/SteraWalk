@@ -3,12 +3,13 @@ package pkg
 import "log"
 
 // MakeOct2 は歯型2の８角形を３つの４角形に分割する
-func MakeOct2(XY [][]float64, order map[string]int) (cord [][]float64, rect1List [][]float64, rect2List [][]float64, rect3List [][]float64) {
+func MakeOct2(XY [][]float64, order map[string]int) (cord [][]float64,
+	rect1List [][]float64, rect2List [][]float64, rect3List [][]float64,
+	story []int, yane []string) {
 	// octT := "歯型2"
 	nodOct := len(XY)
 	if nodOct != 8 {
 		// TODO:8頂点でない多角形は，三角メッシュ分割
-		// 関数から戻る
 		return
 	}
 	num1 := order["L1"]
@@ -29,13 +30,10 @@ func MakeOct2(XY [][]float64, order map[string]int) (cord [][]float64, rect1List
 	// 直交する直線aと対向する辺との直交条件を確認する
 	intX, intY, theta := OrthoAngle(chokuCord1, taikoCord1)
 	int1stX := intX
-	// log.Println("int1stX=", int1stX)
 	int1stY := intY
-	// log.Println("int1stY=", int1stY)
 	// 交差角度が制限範囲内でない場合は処理を中断する
-	if theta < 75 || theta > 105 {
-		// if theta < 60 || theta > 120 {
-		// TODO:関数から戻る
+	if theta < 45 || theta > 135 {
+		log.Println("theta=", theta)
 		// return
 	}
 
@@ -56,13 +54,10 @@ func MakeOct2(XY [][]float64, order map[string]int) (cord [][]float64, rect1List
 	// 直交する直線bと対向する辺との直交条件を確認する
 	int2X, int2Y, theta2 := OrthoAngle(chokuXY, taikoXY)
 	int2ndX := int2X
-	// log.Println("int2ndX=", int2ndX)
 	int2ndY := int2Y
-	// log.Println("int2ndY=", int2ndY)
 	// 交差角度が制限範囲内でない場合は処理を中断する
-	if theta2 < 75 || theta2 > 105 {
-		// if theta2 < 60 || theta2 > 120 {
-		// TODO:関数から戻る
+	if theta2 < 45 || theta2 > 135 {
+		log.Println("theta=", theta)
 		// return
 	}
 
@@ -76,7 +71,6 @@ func MakeOct2(XY [][]float64, order map[string]int) (cord [][]float64, rect1List
 	log.Println("d2=", d2)
 	// 座標値のリストにD2点の座標値を追加する
 	XY = append(XY, d2)
-	// log.Println("cord=", XY)
 	// 頂点並びの辞書に分割点を追加する
 	d1num := nodOct
 	order["D1"] = d1num
@@ -87,12 +81,18 @@ func MakeOct2(XY [][]float64, order map[string]int) (cord [][]float64, rect1List
 	// 四角形L2-D2-R4-R5
 	// 切妻・片流れ／平屋
 	rect1name := []string{"L2", "D2", "R4", "R5"}
+	story = append(story, 1)
+	yane = append(yane, "kata")
 	// 四角形L1-R1-R2-D1
 	// 切妻・片流れ／平屋
 	rect2name := []string{"D1", "L1", "R1", "R2"}
+	story = append(story, 1)
+	yane = append(yane, "kata")
 	// 四角形R6-D1-R3-D2
 	// 寄棟屋根
 	rect3name := []string{"R6", "D1", "R3", "D2"}
+	story = append(story, 2)
+	yane = append(yane, "yose")
 
 	// 辞書の中身に従ってリストの座標データで四角形を作る
 	// var rect1List [][]float64
@@ -116,5 +116,5 @@ func MakeOct2(XY [][]float64, order map[string]int) (cord [][]float64, rect1List
 	// log.Println(n)
 	cord = XY
 	// log.Println("cord=", cord)
-	return cord, rect1List, rect2List, rect3List
+	return cord, rect1List, rect2List, rect3List, story, yane
 }

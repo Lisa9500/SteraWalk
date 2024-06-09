@@ -8,7 +8,7 @@ import (
 // DecaDiv は10角形を４つの四角形に分割する
 func DecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 	lrIdx []int) (rect1L [][]float64, rect2L [][]float64, rect3L [][]float64,
-	rect4L [][]float64) {
+	rect4L [][]float64, story []int, yane []string) {
 	var hex1L [][]float64
 	var octa1name []string
 	var octa1L [][]float64
@@ -22,7 +22,7 @@ func DecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 	d0Num := nodDec
 	var num0 int
 
-	// LR並びの確認　L点から始まっていなければエラー
+	// LR並びの確認  L点から始まっていなければエラー
 	if lrPtn[0] != "L" {
 		// TODO:関数から戻る
 		return
@@ -124,7 +124,6 @@ func DecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		// num0はL3点のインデックス番号
 		// 10角形を１つの四角形と１つの8角形に分割する
 		cordz, order2, keyList, areaTag := DecaPrepro(num0, cord2, nodDec, order, tp)
-
 		// 大きい耳となる方の四角形を分割し，残りで8角形を作る
 		if areaTag == "areaA" {
 			// 四角形を作る
@@ -212,7 +211,7 @@ func DecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		if areaTag == "areaA" {
 			// 四角形を作る
 			rect1name, _ := MkrectA(cordz, order2, keyList, nodDec, num0, d0Num)
-			// rect1name = ['L3', 'R6', 'R7', 'D1']
+			// rect1name = ['D1', 'L3', 'R6', 'R7']
 
 			log.Println("rect1name", rect1name)
 			rect4L = MakeRectList(cordz, order2, rect1name)
@@ -254,7 +253,7 @@ func DecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		if areaTag == "areaA" {
 			// 四角形を作る
 			rect1name, _ := MkrectA2(cordz, order2, keyList, nodDec, num0, d0Num)
-			// rect1name = ['D1', 'R4', 'R5', 'R6']
+			// rect1name = ['R6', 'D1', 'R4', 'R5']
 
 			log.Println("rect1name", rect1name)
 			rect4L = MakeRectList(cordz, order2, rect1name)
@@ -367,7 +366,7 @@ func DecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 			// 四角形を作る
 			// L3//L1点と次のR点とその次のR点とD点: num0, num0+1, num0+2, d0Num
 			rect1name, _ := MkrectA(cordz, order2, keyList, nodDec, num0, d0Num)
-			// rect1name = ['L3', 'R5', 'R6', 'D1']
+			// rect1name = ['D1', 'L3', 'R5', 'R6']
 
 			log.Println("rect1name", rect1name)
 			rect4L = MakeRectList(cordz, order2, rect1name)
@@ -535,11 +534,10 @@ func DecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		_, _, orderN, lrPtn, lrIdx := Lexicogra(nod, octa1L, extL)
 		log.Println("orderN=", orderN)
 		// 8角形の四角形分割プログラムに渡す
-		_, rect1L, rect2L, rect3L, hex1L = OctaDiv(octa1L, orderN, lrPtn, lrIdx)
+		_, rect1L, rect2L, rect3L, story, yane = OctaDiv(octa1L, orderN, lrPtn, lrIdx)
 		log.Println("rectO1L=", rect1L)
 		log.Println("rectO2L=", rect2L)
 		log.Println("rectO3L=", rect3L)
-		log.Println("hexO1L=", hex1L)
 	}
 
 	if hex1L != nil {
@@ -558,6 +556,5 @@ func DecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		log.Println("rectH2L", rect2L)
 		log.Println("rectH3L", rect3L)
 	}
-
-	return rect1L, rect2L, rect3L, rect4L
+	return rect1L, rect2L, rect3L, rect4L, story, yane
 }

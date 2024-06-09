@@ -1,6 +1,6 @@
 package pkg
 
-// PairCords は頂点ペアのXY座標を求める
+// PairCords は頂点ペア間の距離を求める
 func PairCords(pair [][]float64) (dist float64) {
 	x1 := pair[0][1]
 	y1 := pair[0][0]

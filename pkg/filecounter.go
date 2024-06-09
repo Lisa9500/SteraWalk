@@ -8,6 +8,7 @@ import (
 	"unicode"
 )
 
+// FileCount は読み込んだファイルの行数，文字数などを数える
 func FileCount(file *os.File) (int, int, int, int) {
 	rd := bufio.NewReader(file)
 	c, l, w, m := 0, 0, 0, 0 // バイト数, 行数, 単語数, 文字数

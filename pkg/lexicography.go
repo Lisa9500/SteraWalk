@@ -22,8 +22,8 @@ func Lexicogra(nod int, XY [][]float64, ext []float64) (lList [][]float64,
 	log.Println("外積", ext) // Ctrl+/
 
 	for i := 0; i < nod; i++ {
-		// L点（外積の値が負）の場合の処理
-		if ext[i] < 0 {
+		// L点（外積の値が正）の場合の処理
+		if ext[i] > 0 {
 			// L点が見つかった順に処理している
 			// log.Println("i=", i)
 			// log.Println("ext=", ext[i])
@@ -63,9 +63,9 @@ func Lexicogra(nod int, XY [][]float64, ext []float64) (lList [][]float64,
 		lrIndx = append(lrIndx, j)
 		rNum++
 	}
-	log.Println("order=", order)
-	log.Println("lrPttrn=", lrPttrn)
-	log.Println("lrIndx=", lrIndx)
+	// log.Println("order=", order)
+	// log.Println("lrPttrn=", lrPttrn)
+	// log.Println("lrIndx=", lrIndx)
 
 	return lList, rList, order, lrPttrn, lrIndx
 }

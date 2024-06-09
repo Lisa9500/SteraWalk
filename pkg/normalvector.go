@@ -14,11 +14,11 @@ func NorVec(p1, p2, p3 []float64) (nor []float64) {
 
 	// ベクトルV1
 	for i := 0; i < 3; i++ {
-		v1[i] = p1[i] - p2[i]
+		v1[i] = p2[i] - p1[i]
 	}
 	// ベクトルV2
 	for i := 0; i < 3; i++ {
-		v2[i] = p3[i] - p2[i]
+		v2[i] = p3[i] - p1[i]
 	}
 	// 法線ベクトルの計算（外積計算）
 	for i := 0; i < 3; i++ {

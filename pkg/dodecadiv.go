@@ -8,7 +8,7 @@ import (
 // DodecaDiv は12角形を５つの四角形に分割する
 func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 	lrIdx []int) (rect1L [][]float64, rect2L [][]float64, rect3L [][]float64,
-	rect4L [][]float64, rect5L [][]float64) {
+	rect4L [][]float64, rect5L [][]float64, story []int, yane []string) {
 	var hex1L [][]float64
 	var octa1L [][]float64
 	var deca1name []string
@@ -183,7 +183,7 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		if areaTag == "areaA" {
 			// 四角形を作る
 			rect5name, _ := MkrectA(cordz, order2, keyList, nodDode, num0, d0Num)
-			// rect5name = ['D1', 'R4', 'R5', 'R6']
+			// rect5name = ['D1', 'L4', 'R7', 'R8']
 
 			log.Println("rect5name", rect5name)
 			rect5L = MakeRectList(cordz, order2, rect5name)
@@ -322,7 +322,7 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		if areaTag == "areaA" {
 			// 四角形を作る
 			rect5name, _ := MkrectA(cordz, order2, keyList, nodDode, num0, d0Num)
-			// rect5name = ['D1', 'R4', 'R5', 'R6']
+			// rect5name = ['D1', 'L4', 'R7', 'R8']
 
 			log.Println("rect5name", rect5name)
 			rect5L = MakeRectList(cordz, order2, rect5name)
@@ -880,8 +880,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		// 大きい耳となる方の四角形を分割し，残りで10角形を作る
 		if areaTag == "areaA" {
 			// 四角形を作る
-			rect5name, _ := MkrectA2(cordz, order2, keyList, nodDode, num0, d0Num)
-			// rect5name = ['D1', 'R5', 'R6', 'R7']
+			rect5name, _ := MkrectA3(cordz, order2, keyList, nodDode, num0, d0Num)
+			// rect5name = ['R7', 'D1', 'R5', 'R6']
 
 			log.Println("rect5name", rect5name)
 			rect5L = MakeRectList(cordz, order2, rect5name)
@@ -1101,8 +1101,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		// 大きい耳となる方の四角形を分割し，残りで10角形を作る
 		if areaTag == "areaA" {
 			// 四角形を作る
-			rect5name, _ := MkrectA2(cordz, order2, keyList, nodDode, num0, d0Num)
-			// rect5name = ['D1', 'R5', 'R6', 'R7']
+			rect5name, _ := MkrectA3(cordz, order2, keyList, nodDode, num0, d0Num)
+			// rect5name = ['R7', 'D1', 'R5', 'R6']
 
 			log.Println("rect5name", rect5name)
 			rect5L = MakeRectList(cordz, order2, rect5name)
@@ -1277,8 +1277,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		tp = "a2"
 		if areaTag == "areaA" {
 			// 四角形を作る
-			rect5name, _ := MkrectA2(cordz, order2, keyList, nodDode, num0, d0Num)
-			// rect5name = ['D1', 'R5', 'R6', 'R7']
+			rect5name, _ := MkrectA3(cordz, order2, keyList, nodDode, num0, d0Num)
+			// rect5name = ['R7', 'D1', 'R5', 'R6']
 
 			log.Println("rect5name", rect5name)
 			rect5L = MakeRectList(cordz, order2, rect5name)
@@ -1420,8 +1420,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		tp = "a2"
 		if areaTag == "areaA" {
 			// 四角形を作る
-			rect5name, _ := MkrectA2(cordz, order2, keyList, nodDode, num0, d0Num)
-			// rect5name = ['D1', 'R5', 'R6', 'R7']
+			rect5name, _ := MkrectA3(cordz, order2, keyList, nodDode, num0, d0Num)
+			// rect5name = ['R7', 'D1', 'R5', 'R6']
 
 			log.Println("rect5name", rect5name)
 			rect5L = MakeRectList(cordz, order2, rect5name)
@@ -1540,8 +1540,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		// 大きい耳となる方の四角形を分割し，残りで10角形を作る
 		if areaTag == "areaA" {
 			// 四角形を作る
-			rect5name, _ := MkrectA2(cordz, order2, keyList, nodDode, num0, d0Num)
-			// rect5name = ['D1', 'R4', 'R5', 'R6']
+			rect5name, _ := MkrectA3(cordz, order2, keyList, nodDode, num0, d0Num)
+			// rect5name = ['R6', 'D1', 'R4', 'R5']
 
 			log.Println("rect5name", rect5name)
 			rect5L = MakeRectList(cordz, order2, rect5name)
@@ -1664,8 +1664,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		// 大きい耳となる方の四角形を分割し，残りで10角形を作る
 		if areaTag == "areaA" {
 			// 四角形を作る
-			rect5name, _ := MkrectA2(cordz, order2, keyList, nodDode, num0, d0Num)
-			// rect5name = ['D1', 'R6', 'R7', 'R8']
+			rect5name, _ := MkrectA3(cordz, order2, keyList, nodDode, num0, d0Num)
+			// rect5name = ['R8', 'D1', 'R6', 'R7']
 
 			log.Println("rect5name", rect5name)
 			rect5L = MakeRectList(cordz, order2, rect5name)
@@ -1702,8 +1702,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		// 大きい耳となる方の四角形を分割し，残りで10角形を作る
 		if areaTag == "areaA" {
 			// 四角形を作る
-			rect5name, _ := MkrectA2(cordz, order2, keyList, nodDode, num0, d0Num)
-			// rect5name = ['D1', 'R6', 'R7', 'R8']
+			rect5name, _ := MkrectA3(cordz, order2, keyList, nodDode, num0, d0Num)
+			// rect5name = ['R8', 'D1', 'R6', 'R7']
 
 			log.Println("rect5name", rect5name)
 			rect5L = MakeRectList(cordz, order2, rect5name)
@@ -1831,8 +1831,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		tp = "a2"
 		if areaTag == "areaA" {
 			// 四角形を作る
-			rect5name, _ := MkrectA2(cordz, order2, keyList, nodDode, num0, d0Num)
-			// rect5name = ['D1', 'R5', 'R6', 'R7']
+			rect5name, _ := MkrectA3(cordz, order2, keyList, nodDode, num0, d0Num)
+			// rect5name = ['R7', 'D1', 'R5', 'R6']
 
 			log.Println("rect5name", rect5name)
 			rect5L = MakeRectList(cordz, order2, rect5name)
@@ -1901,7 +1901,7 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		_, _, orderN, lrPtn, lrIdx := Lexicogra(nod, deca1L, extL)
 		log.Println("orderN=", orderN)
 		// 10角形の四角形分割プログラムに渡す
-		rect1L, rect2L, rect3L, rect4L = DecaDiv(deca1L, orderN, lrPtn, lrIdx)
+		rect1L, rect2L, rect3L, rect4L, story, yane = DecaDiv(deca1L, orderN, lrPtn, lrIdx)
 		log.Println("rectD1L=", rect1L)
 		log.Println("rectD2L=", rect2L)
 		log.Println("rectD3L=", rect3L)
@@ -1921,11 +1921,10 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		_, _, orderN, lrPtn, lrIdx := Lexicogra(nod, octa1L, extL)
 		log.Println("orderN=", orderN)
 		// 8角形の四角形分割プログラムに渡す
-		_, rect1L, rect2L, rect3L, hex1L = OctaDiv(octa1L, orderN, lrPtn, lrIdx)
+		_, rect1L, rect2L, rect3L, story, yane = OctaDiv(octa1L, orderN, lrPtn, lrIdx)
 		log.Println("rectO1L=", rect1L)
 		log.Println("rectO2L=", rect2L)
 		log.Println("rectO3L=", rect3L)
-		log.Println("hexO1L=", hex1L)
 	}
 
 	if hex1L != nil {
@@ -1945,5 +1944,5 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 		log.Println("rectH3L", rect3L)
 	}
 
-	return rect1L, rect2L, rect3L, rect4L, rect5L
+	return rect1L, rect2L, rect3L, rect4L, rect5L, story, yane
 }
