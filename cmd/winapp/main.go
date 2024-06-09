@@ -149,6 +149,27 @@ func main() {
 				},
 			},
 			Menu{
+				Text: "建物モデル",
+				Items: []MenuItem{
+					Action{
+						Text:        "COLLADA",
+						OnTriggered: mw.BuilDAE,
+					},
+					Action{
+						Text:        "IFC",
+						OnTriggered: mw.LandXML, // TODO mw.BuilIFC
+					},
+					Action{
+						Text:        "DXF file",
+						OnTriggered: mw.LandDXF, // TODO mw.BuilDXF
+					},
+					Action{
+						Text:        "OBJ file",
+						OnTriggered: mw.LandDXF, // TODO mw.BuilOBJ
+					},
+				},
+			},
+			Menu{
 				Text: "地形モデル",
 				Items: []MenuItem{
 					Action{
@@ -237,16 +258,6 @@ func main() {
 								Text:      "ファイル分割",
 								OnClicked: mw.pbClicked,
 							},
-						},
-					},
-					GroupBox{
-						Layout: VBox{},
-						Children: []Widget{
-							Label{
-								Font:     Font{PointSize: 9},
-								AssignTo: &mw.blabel,
-								Text:     "建物モデル作成",
-							},
 							GroupBox{
 								Layout: HBox{},
 								Children: []Widget{
@@ -300,6 +311,72 @@ func main() {
 										Font:     Font{PointSize: 9},
 										AssignTo: &mw.d2_label,
 										Text:     "    件    ",
+									},
+								},
+							},
+						},
+					},
+					GroupBox{
+						Layout: VBox{},
+						Children: []Widget{
+							Label{
+								Font:     Font{PointSize: 9},
+								AssignTo: &mw.blabel,
+								Text:     "建物モデル作成",
+							},
+							GroupBox{
+								Layout: HBox{},
+								Children: []Widget{
+									Label{
+										Font:     Font{PointSize: 9},
+										AssignTo: &mw.t1label,
+										Text:     "COLLADAファイル",
+									},
+									PushButton{
+										Text:      "作成",
+										OnClicked: mw.BuilDAE,
+									},
+								},
+							},
+							GroupBox{
+								Layout: HBox{},
+								Children: []Widget{
+									Label{
+										Font:     Font{PointSize: 9},
+										AssignTo: &mw.t1label,
+										Text:     "IFCファイル",
+									},
+									PushButton{
+										Text:      "作成",
+										OnClicked: mw.LandXML, // TODO mw.BuilIFC
+									},
+								},
+							},
+							GroupBox{
+								Layout: HBox{},
+								Children: []Widget{
+									Label{
+										Font:     Font{PointSize: 9},
+										AssignTo: &mw.t1label,
+										Text:     "DXFファイル",
+									},
+									PushButton{
+										Text:      "作成",
+										OnClicked: mw.LandDXF, // TODO mw.BuilDXF
+									},
+								},
+							},
+							GroupBox{
+								Layout: HBox{},
+								Children: []Widget{
+									Label{
+										Font:     Font{PointSize: 9},
+										AssignTo: &mw.t1label,
+										Text:     "OBJファイル",
+									},
+									PushButton{
+										Text:      "作成",
+										OnClicked: mw.LandDXF, // TODO mw.BuilOBJ
 									},
 								},
 							},
@@ -531,7 +608,7 @@ func (mw *MyMainWindow) menuOpen() {
 	// データ件数
 	fl, er := os.Open(fn)
 	_, l, _, _ := pkg.FileCount(fl)
-	mw.le2.SetText(strconv.Itoa(l))
+	mw.le2.SetText(strconv.Itoa(l - 7))
 	if er != nil {
 		log.Fatal(er)
 	}
@@ -601,6 +678,12 @@ func (mw *MyMainWindow) hutsuBuild() {
 func (mw *MyMainWindow) trimeshDev() {
 	log.Println("FileMenu - TriangleMeshDevide Clicked")
 	internal.TriMeshDiv()
+}
+
+func (mw *MyMainWindow) BuilDAE() {
+	log.Println("FileMenu - COLLADA_Building Clicked")
+	internal.BuildDAE()
+	// internal.TriMeshDiv()
 }
 
 func (mw *MyMainWindow) LandDAE() {
