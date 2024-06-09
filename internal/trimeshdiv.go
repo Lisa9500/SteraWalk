@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"fmt"
 	"log"
 	"stera/pkg"
 	"strings"
@@ -31,12 +30,12 @@ func TriMeshDiv() {
 
 	// LR並びにLRRLが含まれているか調べる
 	str1 := "LRRL"
-	fmt.Println(strings.Contains(lrjoin, str1))
+	log.Println(strings.Contains(lrjoin, str1))
 
 	// LR並びからLRRLを探して文字列位置を返す
 	for strings.Contains(lrjoin, str1) == true {
 		num := len(lrjoin)
-		fmt.Println(strings.Index(lrjoin, str1))
+		log.Println(strings.Index(lrjoin, str1))
 		log.Println("LRRL=", strings.Index(lrjoin, str1))
 		// 2つのL点を結んでできる四角形を2つに分割してリストに追加する
 		// 2つのL点に挟まれたR点を削除して多角形を作り直す
@@ -50,9 +49,9 @@ func TriMeshDiv() {
 		tr_13 := (idx + 2) % num
 		// 分離する三角形１の頂点座標
 		tri1 := Triangle{vtx1: cords[tr_11], vtx2: cords[tr_12], vtx3: cords[tr_13]}
-		fmt.Println(tri1)
+		log.Println(tri1)
 		triList = append(triList, &tri1)
-		fmt.Println(triList)
+		log.Println(triList)
 		log.Println("triList=", *triList[i])
 		i++
 
@@ -61,9 +60,9 @@ func TriMeshDiv() {
 		tr_22 := tr_13
 		tr_23 := (idx + 3) % num
 		tri2 := Triangle{vtx1: cords[tr_21], vtx2: cords[tr_22], vtx3: cords[tr_23]}
-		fmt.Println(tri2)
+		log.Println(tri2)
 		triList = append(triList, &tri2)
-		fmt.Println(triList)
+		log.Println(triList)
 		log.Println("triList=", *triList[i])
 		i++
 
@@ -92,12 +91,12 @@ func TriMeshDiv() {
 
 	// LR並びからLRLが含まれているか調べる
 	str2 := "LRL"
-	fmt.Println(strings.Index(lrjoin, str2))
+	log.Println(strings.Index(lrjoin, str2))
 
 	// LR並びからLRLを探して文字列位置を返す
 	for strings.Contains(lrjoin, str2) == true {
 		num := len(lrjoin)
-		fmt.Println(strings.Index(lrjoin, str2))
+		log.Println(strings.Index(lrjoin, str2))
 		log.Println("LRL=", strings.Index(lrjoin, str2))
 		// 2つのL点を結んでできる三角形を分割してリストに追加する
 		// 2つのL点に挟まれたR点を削除して多角形を作り直す
@@ -111,9 +110,9 @@ func TriMeshDiv() {
 		tr_03 := (idx + 2) % num
 		// 分離する三角形１の頂点座標
 		tri0 := Triangle{vtx1: cords[tr_01], vtx2: cords[tr_02], vtx3: cords[tr_03]}
-		fmt.Println(tri0)
+		log.Println(tri0)
 		triList = append(triList, &tri0)
-		fmt.Println(triList)
+		log.Println(triList)
 		log.Println("triList=", *triList[i])
 		i++
 
@@ -142,12 +141,12 @@ func TriMeshDiv() {
 
 	// LR並びにLRRRLが含まれているか調べる
 	str5 := "LRRRL"
-	fmt.Println(strings.Contains(lrjoin, str5))
+	log.Println(strings.Contains(lrjoin, str5))
 
 	// LR並びからLRRLを探して文字列位置を返す
 	for strings.Contains(lrjoin, str5) == true {
 		num := len(lrjoin)
-		fmt.Println(strings.Index(lrjoin, str5))
+		log.Println(strings.Index(lrjoin, str5))
 		log.Println("LRRRL=", strings.Index(lrjoin, str5))
 		// 両端のL点とこれに続く2つのR点を結んでできる2つの三角形を分割する
 		// そして，両端のL点と3点のうち中央のR点を結んでできる三角形を分割する
@@ -161,9 +160,9 @@ func TriMeshDiv() {
 		tr_13 := (idx + 2) % num
 		// 分離する三角形１の頂点座標
 		tri1 := Triangle{vtx1: cords[tr_11], vtx2: cords[tr_12], vtx3: cords[tr_13]}
-		fmt.Println(tri1)
+		log.Println(tri1)
 		triList = append(triList, &tri1)
-		fmt.Println(triList)
+		log.Println(triList)
 		log.Println("triList=", *triList[i])
 		i++
 
@@ -172,9 +171,9 @@ func TriMeshDiv() {
 		tr_22 := (idx + 3) % num
 		tr_23 := (idx + 4) % num
 		tri2 := Triangle{vtx1: cords[tr_21], vtx2: cords[tr_22], vtx3: cords[tr_23]}
-		fmt.Println(tri2)
+		log.Println(tri2)
 		triList = append(triList, &tri2)
-		fmt.Println(triList)
+		log.Println(triList)
 		log.Println("triList=", *triList[i])
 		i++
 
@@ -183,9 +182,9 @@ func TriMeshDiv() {
 		tr_32 := tr_13
 		tr_33 := tr_23
 		tri3 := Triangle{vtx1: cords[tr_31], vtx2: cords[tr_32], vtx3: cords[tr_33]}
-		fmt.Println(tri3)
+		log.Println(tri3)
 		triList = append(triList, &tri3)
-		fmt.Println(triList)
+		log.Println(triList)
 		log.Println("triList=", *triList[i])
 		i++
 
@@ -214,7 +213,7 @@ func TriMeshDiv() {
 
 	// LR並びからRRLが含まれているか調べる
 	str3 := "RRL"
-	fmt.Println(strings.Index(lrjoin, str3))
+	log.Println(strings.Index(lrjoin, str3))
 
 	// LR並びからLLRRを探して文字列位置を返す
 	for strings.Contains(lrjoin, str3) == true {
@@ -223,7 +222,7 @@ func TriMeshDiv() {
 			break
 		}
 
-		fmt.Println(strings.Index(lrjoin, str3))
+		log.Println(strings.Index(lrjoin, str3))
 		// log.Println("LLRR=", strings.Index(lrjoin, str3))
 		log.Println("RRL=", strings.Index(lrjoin, str3))
 		// L点と２つ前のR点を結んでできる三角形を分割してリストに追加する
@@ -238,9 +237,9 @@ func TriMeshDiv() {
 		tr_33 := (idx + 2) % num
 		// 分離する三角形１の頂点座標
 		tri3 := Triangle{vtx1: cords[tr_31], vtx2: cords[tr_32], vtx3: cords[tr_33]}
-		fmt.Println(tri3)
+		log.Println(tri3)
 		triList = append(triList, &tri3)
-		fmt.Println(triList)
+		log.Println(triList)
 		log.Println("triList=", *triList[i])
 		i++
 
@@ -269,7 +268,7 @@ func TriMeshDiv() {
 
 	// LR並びからLRRが含まれているか調べる
 	str4 := "LRR"
-	fmt.Println(strings.Index(lrjoin, str4))
+	log.Println(strings.Index(lrjoin, str4))
 
 	// LR並びからLRRを探して文字列位置を返す
 	for strings.Contains(lrjoin, str4) == true {
@@ -278,7 +277,7 @@ func TriMeshDiv() {
 			break
 		}
 
-		fmt.Println(strings.Index(lrjoin, str4))
+		log.Println(strings.Index(lrjoin, str4))
 		log.Println("LRR=", strings.Index(lrjoin, str4))
 		// L点と２つ次のR点を結んでできる三角形を分割してリストに追加する
 		// L点の１つ次のR点を削除して多角形を作り直す
@@ -292,9 +291,9 @@ func TriMeshDiv() {
 		tr_43 := (idx + 2) % num
 		// 分離する三角形１の頂点座標
 		tri4 := Triangle{vtx1: cords[tr_41], vtx2: cords[tr_42], vtx3: cords[tr_43]}
-		fmt.Println(tri4)
+		log.Println(tri4)
 		triList = append(triList, &tri4)
-		fmt.Println(triList)
+		log.Println(triList)
 		log.Println("triList=", *triList[i])
 		i++
 
@@ -329,10 +328,10 @@ func TriMeshDiv() {
 		log.Println("idx=", idx)
 		// 分離する三角形の頂点座標
 		tri51 := Triangle{vtx1: cords[idx], vtx2: cords[(idx+1)%4], vtx3: cords[(idx+2)%4]}
-		fmt.Println(tri51)
+		log.Println(tri51)
 		triList = append(triList, &tri51)
 		tri52 := Triangle{vtx1: cords[idx], vtx2: cords[(idx+2)%4], vtx3: cords[(idx+3)%4]}
-		fmt.Println(tri52)
+		log.Println(tri52)
 		triList = append(triList, &tri52)
 	}
 
@@ -345,7 +344,7 @@ func TriMeshDiv() {
 			tr_63 := i + 2
 			// 分離する三角形の頂点座標
 			tri6 := Triangle{vtx1: cords[0], vtx2: cords[tr_62], vtx3: cords[tr_63]}
-			fmt.Println(tri6)
+			log.Println(tri6)
 			triList = append(triList, &tri6)
 		}
 	}

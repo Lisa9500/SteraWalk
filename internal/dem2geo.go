@@ -55,20 +55,9 @@ func TinMesh() (x_matrix, y_matrix, z_matrix [][]float64, x_len, y_len float64, 
 		// データを構造体のスライスに読み込む
 		xyz := Zahyo{x: geo[0], y: geo[1], z: geo[2]}
 		zahyo = append(zahyo, xyz)
-		// x_zahyo = append(x_zahyo, geo[0]/kansan) // X座標の読み込み
-		// y_zahyo = append(y_zahyo, geo[1]/kansan) // Y座標の読み込み
-		// hyoukou = append(hyoukou, geo[2]/kansan) // 地盤高データの読み込み
 		lines += 1
 	}
 	// log.Println("lines=", lines)
-
-	// // 構造体のスライスをY座標の値でソートする
-	// sort.Slice(zahyo, func(i, j int) bool {
-	// 	return zahyo[i].y < zahyo[j].y
-	// })
-	// // for i := 0; i < counter; i++ {
-	// // 	log.Println("line= ", i, "x_zahyo= ", zahyo[i].x, "y_zahyo= ", zahyo[i].y, "hyoukou= ", zahyo[i].z)
-	// // }
 
 	// 各座標データを各スライスに読み込む
 	for i := 0; i < lines; i++ {
@@ -123,6 +112,7 @@ func TinMesh() (x_matrix, y_matrix, z_matrix [][]float64, x_len, y_len float64, 
 	// X座標の間隔は上(北)の方は狭く，下(南)は広く，同じ行(段)は等間隔になっている
 	// X(東西)方向のマス目の大きさ
 	x_dist := math.Abs(x_zahyo[1] - x_zahyo[0])
+
 	var x_dist_temp float64
 	for i := 2; i < counter; i++ {
 		// X座標値は東／右に行くほど値が大きくなる
@@ -135,15 +125,15 @@ func TinMesh() (x_matrix, y_matrix, z_matrix [][]float64, x_len, y_len float64, 
 			}
 		}
 	}
-	// log.Println("x_dist=", x_dist)
+	log.Println("x_dist=", x_dist)
 
 	// X(東西)方向のデータ数を求める
 	// X(東西)方向マス数最大値の初期化
 	x_countMax := int64(math.Round(x_len / x_dist))
-	// log.Println("x_countMax=", x_countMax)
+	log.Println("x_countMax=", x_countMax)
 	// X(東西)方向の頂点データ数
 	x_dot = x_countMax + 1
-	// log.Println("x_dot=", x_dot)
+	log.Println("x_dot=", x_dot)
 
 	// Y(南北)方向のマス目の大きさを求める
 	var y_zahyo_accu = 0.0
@@ -152,40 +142,30 @@ func TinMesh() (x_matrix, y_matrix, z_matrix [][]float64, x_len, y_len float64, 
 	// 各行（段）のY座標平均値を格納する配列の準備
 	var y_zahyo_arr []float64
 	var row_cnt = 0
-	for i := 1; i < (counter - 1); i++ {
+	// var row_cnt = 1
+	// for i := 1; i < (counter - 1); i++ {
+	for i := 1; i < counter; i++ {
 		// Y座標値を累積して平均値を求める
-		// Y座標値は右肩下がり（東／右に行くほど値が小さくなる）
+		// Y座標値は右肩上がり（東／右に行くほど値が大きくなる）
 		if x_zahyo[i] > x_zahyo[i-1] {
 			y_zahyo_accu = y_zahyo_accu + y_zahyo[i-1]
 			y_cnt_tmp = y_cnt_tmp + 1
 		} else {
-			// log.Println("x_zahyo[i]=", x_zahyo[i])
-			// log.Println("y_zahyo[i]=", y_zahyo[i])
 			y_zahyo_accu = y_zahyo_accu + y_zahyo[i-1]
 			y_cnt_tmp = y_cnt_tmp + 1
 			y_zahyo_arr = append(y_zahyo_arr, y_zahyo_accu/float64(y_cnt_tmp))
 			// Y座標平均値用配列にデータを追加したのでカウンターを１増やす
 			row_cnt = row_cnt + 1
-			// log.Println("row_cnt=", row_cnt)
-			// log.Println("y_zahyo_accu=", y_zahyo_accu)
-			// log.Println("y_cnt_tmp=", y_cnt_tmp)
 			y_zahyo_accu = 0.0
 			y_cnt_tmp = 0
 		}
-		if i == (counter - 1) {
+		// if i == (counter - 1) {
+		if i == counter {
 			y_zahyo_accu = y_zahyo_accu + y_zahyo[i]
 			y_cnt_tmp = y_cnt_tmp + 1
 			y_zahyo_arr = append(y_zahyo_arr, y_zahyo_accu/float64(y_cnt_tmp))
-			// log.Println("row_cnt_F=", row_cnt)
-			// log.Println("y_zahyo_accu_F=", y_zahyo_accu)
-			// log.Println("y_cnt_tmp_F=", y_cnt_tmp)
 		}
 	}
-	// log.Println("y_zahyo_accu=", y_zahyo_accu)
-	// log.Println("y_cnt_tmp=", y_cnt_tmp)
-	// log.Println("y_zahyo_arr=", y_zahyo_arr)
-	// cnt_y_arr := len(y_zahyo_arr)
-	// log.Println("cnt_y_arr=", cnt_y_arr)
 
 	var y_dist_temp = 0.0 // Y(南北)方向の計算過程での高さ
 	var y_dist_cnt = 0    // Y(南北)方向の計算過程での累積回数
@@ -195,14 +175,13 @@ func TinMesh() (x_matrix, y_matrix, z_matrix [][]float64, x_len, y_len float64, 
 		y_diff_temp = math.Abs(y_zahyo_arr[j] - y_zahyo_arr[j-1])
 		// log.Println("y_diff_temp=", y_diff_temp)
 		// 空白となっている行（段）は除外する
-		// Y座標の間隔がX座標の間隔の1.5倍以上の場合は空白の行（段）と判断する
+		// Y座標の間隔がX座標の間隔の1.5倍未満の場合は空白の行（段）ではないと判断する
 		if y_diff_temp < x_dist*1.5 {
 			y_dist_temp = y_dist_temp + y_diff_temp
 			y_dist_cnt = y_dist_cnt + 1
 		}
 	}
-	// log.Println("y_dist_temp=", y_dist_temp)
-	// log.Println("y_dist_cnt=", y_dist_cnt)
+
 	// Y(南北)方向のマス目の大きさ
 	y_dist := y_dist_temp / float64(y_dist_cnt)
 	// log.Println("y_dist=", y_dist)
@@ -214,16 +193,18 @@ func TinMesh() (x_matrix, y_matrix, z_matrix [][]float64, x_len, y_len float64, 
 	var y_tilt_dif = 0.0
 	var y_tilt = 0.0
 
-	// Y座標値は右肩下がり（東／右に行くほど値が小さくなる）
+	// Y座標値は右肩上がり（東／右に行くほど値が大きくなる）
 	for i := 1; i < counter; i++ {
-		// y_zahyo_ini := y_zahyo[0]
 		// X座標値が小さくなっている個所で改行（段）されたと判断できる
 		if x_zahyo[i] < x_zahyo[i-1] {
 			// １番始めの行（段）で改行された場合
 			if y_cnt_tmp2 == 0 {
 				y_zahyo_ini = y_zahyo[0]
+				y_tilt = y_zahyo[i-1] - y_zahyo_ini
+				y_zahyo_ini = y_zahyo[i]
 				y_cnt_tmp2 = 1
 			} else {
+				// Y座標値の差分の最大値を求める
 				y_tilt_dif = y_zahyo[i-1] - y_zahyo_ini
 				if y_tilt < y_tilt_dif {
 					y_tilt = y_tilt_dif
@@ -232,23 +213,11 @@ func TinMesh() (x_matrix, y_matrix, z_matrix [][]float64, x_len, y_len float64, 
 				y_cnt_tmp2 = y_cnt_tmp2 + 1
 			}
 		}
-		// if x_zahyo[i] < x_zahyo[i-1] {
-		// 	// １番始めの行（段）で改行された場合
-		// 	if y_cnt_tmp2 == 0 {
-		// 		y_zahyo_ini = y_zahyo[i]
-		// 		y_cnt_tmp2 = 1
-		//
-		// 	} else {
-		// 		y_zahyo_accu2 = y_zahyo_accu2 + math.Abs(y_zahyo[i]-y_zahyo_ini)
-		// 		y_zahyo_ini = y_zahyo[i]
-		// 		y_cnt_tmp2 = y_cnt_tmp2 + 1
-		// 	}
-		// }
 	}
 	// log.Println("y_cnt_tmp2=", y_cnt_tmp2)
 
 	// y_tilt := y_zahyo_accu2 / (float64(y_cnt_tmp2) - 1)
-	// log.Println("y_tilt=", y_tilt)
+	log.Println("y_tilt=", y_tilt)
 	y_len = y_len - y_tilt
 	// log.Println("y_len=", y_len)
 
@@ -282,6 +251,7 @@ func TinMesh() (x_matrix, y_matrix, z_matrix [][]float64, x_len, y_len float64, 
 	// マトリックスにデータを割り付ける
 	col_num := int64(0) // 桁の番号，左端が１
 	row_num := int64(1) // 行（段）の番号，下端が１
+	// row_num := int64(0) // 行（段）の番号，下端が１
 	blunk := int64(0)   // 空白部分の桁数，初期値は０
 	var x_row []float64 // X座標の配列
 	var y_row []float64 // Y座標の配列
@@ -586,128 +556,5 @@ func TinMesh() (x_matrix, y_matrix, z_matrix [][]float64, x_len, y_len float64, 
 			}
 		}
 	}
-	// log.Println("x_matrix=", len(x_matrix))
-	// log.Println("x_matrix=", x_matrix)
-	// log.Println("y_matrix=", len(y_matrix))
-	// log.Println("y_matrix=", y_matrix)
-	// log.Println("z_matrix=", len(z_matrix))
-	// log.Println("z_matrix=", z_matrix)
-	// for i := 0; i < y_dot; i++ {
-	// 	for j := 0; j < x_dot; j++ {
-	// 		fmt.Println("i= ", i, "j= ", j, " ", z_matrix[i][j])
-	// 	}
-	// }
-
-	// px := &x_matrix
-	// log.Printf("pointer:%p\n", px)
-	// log.Println("x_matrix", unsafe.Sizeof(x_matrix))
-
-	// py := &y_matrix
-	// log.Printf("pointer:%p\n", py)
-	// log.Println("y_matrix", unsafe.Sizeof(y_matrix))
-
-	// pz := &z_matrix
-	// log.Printf("pointer:%p\n", pz)
-	// log.Println("z_matrix", unsafe.Sizeof(z_matrix))
-
-	// // X座標データファイルの作成
-	// fx, err := os.Create("./x_data.gob")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer fx.Close()
-	// // エンコーダーの作成
-	// xEncoder := gob.NewEncoder(fx)
-	// // エンコード
-	// if err := xEncoder.Encode(x_matrix); err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// // Y座標データファイルの作成
-	// fy, err := os.Create("./y_data.gob")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer fy.Close()
-	// // エンコーダーの作成
-	// yEncoder := gob.NewEncoder(fy)
-	// // エンコード
-	// if err := yEncoder.Encode(y_matrix); err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// // Z座標データファイルの作成
-	// fz, err := os.Create("./z_data.gob")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer fz.Close()
-	// // エンコーダーの作成
-	// zEncoder := gob.NewEncoder(fz)
-	// // エンコード
-	// if err := zEncoder.Encode(z_matrix); err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// // X座標データファイルから復元
-	// flx, err := os.Open("./x_data.gob")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer flx.Close()
-	// var x_mat2 = make([][]float64, y_dot)
-	// // デコーダーの作成
-	// xDecoder := gob.NewDecoder(flx)
-	// // デコード
-	// if err := xDecoder.Decode(&x_mat2); err != nil {
-	// 	log.Fatal("decode error:", err)
-	// }
-	// // fmt.Println("x_data\n")
-	// // for i := 0; i < y_dot; i++ {
-	// // 	for j := 0; j < x_dot; j++ {
-	// // 		fmt.Println("i= ", i, "j= ", j, " ", x_mat2[i][j])
-	// // 	}
-	// // }
-
-	// // Y座標データファイルから復元
-	// fly, err := os.Open("./y_data.gob")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer fly.Close()
-	// var y_mat2 = make([][]float64, y_dot)
-	// // デコーダーの作成
-	// yDecoder := gob.NewDecoder(fly)
-	// // デコード
-	// if err := yDecoder.Decode(&y_mat2); err != nil {
-	// 	log.Fatal("decode error:", err)
-	// }
-	// // fmt.Println("y_data\n")
-	// // for i := 0; i < y_dot; i++ {
-	// // 	for j := 0; j < x_dot; j++ {
-	// // 		fmt.Println("i= ", i, "j= ", j, " ", y_mat2[i][j])
-	// // 	}
-	// // }
-
-	// // Z座標データファイルから復元
-	// flz, err := os.Open("./z_data.gob")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer flz.Close()
-	// var z_mat2 = make([][]float64, y_dot)
-	// // デコーダーの作成
-	// zDecoder := gob.NewDecoder(flz)
-	// // デコード
-	// if err := zDecoder.Decode(&z_mat2); err != nil {
-	// 	log.Fatal("decode error:", err)
-	// }
-	// // fmt.Println("z_data\n")
-	// // for i := 0; i < y_dot; i++ {
-	// // 	for j := 0; j < x_dot; j++ {
-	// // 		fmt.Println("i= ", i, "j= ", j, " ", z_mat2[i][j])
-	// // 	}
-	// // }
-
 	return x_matrix, y_matrix, z_matrix, x_len, y_len, x_dot, y_dot, x_max, x_min, y_max, y_min, z_max, z_min
 }

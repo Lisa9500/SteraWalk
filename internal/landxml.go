@@ -19,7 +19,7 @@ func TerrXML(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64, z_max
 	defer func() {
 		err := f.Close()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 	}()
 
@@ -29,8 +29,8 @@ func TerrXML(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64, z_max
 	data := []byte(xml)
 	cnt, err := f.Write(data)
 	if err != nil {
-		fmt.Println(err)
-		fmt.Println("fail to write file")
+		log.Println(err)
+		log.Println("fail to write file")
 	}
 	fmt.Printf("write %d bytes\n", cnt)
 
