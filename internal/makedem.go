@@ -40,7 +40,7 @@ func MakeDem(fn string) error {
 		if er == io.EOF && len(row) == 0 {
 			break
 		}
-		if strings.Contains(row, "標高") == true {
+		if strings.Contains(row, "geometry") {
 			_, er = w.WriteString(row)
 			if er != nil {
 				log.Fatal(er)

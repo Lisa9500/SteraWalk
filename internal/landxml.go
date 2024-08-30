@@ -8,7 +8,7 @@ import (
 )
 
 // TerrXMLはLandXML形式で地形モデルを作成する
-func TerrXML(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64, z_max, z_min float64) {
+func TerrXML(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int, z_max, z_min float64) {
 	// LandXML形式で出力するためのファイルを開く
 	f, err := os.Create("C:/data/outputgeo.xml")
 	// f, err := os.Create("outputgeo.xml")
@@ -67,8 +67,8 @@ func TerrXML(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64, z_max
 
 	// 点集合
 	f.WriteString("\t\t\t\t<Pnts>\n")
-	for i := int64(0); i <= row; i++ {
-		for j := int64(0); j <= col; j++ {
+	for i := 0; i <= row; i++ {
+		for j := 0; j <= col; j++ {
 			pnt := "\t\t\t\t\t<P id=\"" + strconv.Itoa(id) + "\">" + strconv.FormatFloat(x_matrix[i][j]*0.0254, 'f', -1, 64) + " " + strconv.FormatFloat(y_matrix[i][j]*0.0254, 'f', -1, 64) + " " + strconv.FormatFloat(z_matrix[i][j]*0.0254, 'f', -1, 64) + "</P>\n"
 			f.WriteString(pnt)
 			id = id + 1
@@ -78,11 +78,11 @@ func TerrXML(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64, z_max
 
 	// 点（X座標，Y座標，Z座標）
 	f.WriteString("\t\t\t\t<Faces>\n")
-	for i := int64(1); i <= row; i++ {
-		for j := int64(1); j <= col; j++ {
-			fce1 := "\t\t\t\t\t<F>" + strconv.FormatInt(x_dot*(i-1)+j, 10) + " " + strconv.FormatInt(x_dot*(i-1)+j+1, 10) + " " + strconv.FormatInt(x_dot*i+j, 10) + "</F>\n"
+	for i := 1; i <= row; i++ {
+		for j := 1; j <= col; j++ {
+			fce1 := "\t\t\t\t\t<F>" + strconv.Itoa(x_dot*(i-1)+j) + " " + strconv.Itoa(x_dot*(i-1)+j+1) + " " + strconv.Itoa(x_dot*i+j) + "</F>\n"
 			f.WriteString(fce1)
-			fce2 := "\t\t\t\t\t<F>" + strconv.FormatInt(x_dot*(i-1)+j+1, 10) + " " + strconv.FormatInt(x_dot*i+j, 10) + " " + strconv.FormatInt(x_dot*i+j+1, 10) + "</F>\n"
+			fce2 := "\t\t\t\t\t<F>" + strconv.Itoa(x_dot*(i-1)+j+1) + " " + strconv.Itoa(x_dot*i+j) + " " + strconv.Itoa(x_dot*i+j+1) + "</F>\n"
 			f.WriteString(fce2)
 		}
 	}

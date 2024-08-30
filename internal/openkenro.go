@@ -39,12 +39,12 @@ func OpenKenro() (kList []*KenroBuil, lk int) {
 		jStr = strings.TrimRight(jStr, ",")
 
 		// MultiPolygonをLineStringに置換する
-		if strings.Contains(jStr, "[ [ [ [") == true {
+		if strings.Contains(jStr, "[ [ [ [") {
 			jStr = strings.Replace(jStr, "[ [ [ [", "[ [", 1)
 			jStr = strings.Replace(jStr, "] ] ] ]", "] ]", 1)
 		}
 		// PolygonをLineStringに置換する
-		if strings.Contains(jStr, "[ [ [") == true {
+		if strings.Contains(jStr, "[ [ [") {
 			jStr = strings.Replace(jStr, "[ [ [", "[ [", 1)
 			jStr = strings.Replace(jStr, "] ] ]", "] ]", 1)
 		}
@@ -53,8 +53,8 @@ func OpenKenro() (kList []*KenroBuil, lk int) {
 		// log.Println("IDデータ", id)
 		// log.Println("標高データ", elv)
 		// log.Println("座標データ", cords)
-		story = 3
-		bf := 0
+		// story = 3
+		bf := 0 // TODO:
 		kenro := KenroBuil{ID: id, Elv: elv, Story: story, Basement: bf, Area: area, Build: bcr, Floor: far, Cords: cords}
 		kList = append(kList, &kenro)
 		// log.Println("kenroList=", kList)

@@ -10,7 +10,7 @@ import (
 )
 
 // TerrDAEはCOLLADA形式で地形モデルを作成する
-func TerrDAE(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64) {
+func TerrDAE(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int) {
 	// COLLADA形式で出力するためのファイルを開く
 	f, err := os.Create("C:/data/outputgeo.dae")
 	// f, err := os.Create("outputgeo.dae")
@@ -54,12 +54,12 @@ func TerrDAE(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64) {
 	// id = y_countMax
 	// 関数によるIDのみを変更した繰り返し部分の書き出し
 	// lib_vis_scene(id)
-	for i := int64(1); i <= id; i++ {
-		ig_url := "\t\t\t\t<instance_geometry url=\"#ID" + strconv.FormatInt(i, 10) + "\">\n"
+	for i := 1; i <= id; i++ {
+		ig_url := "\t\t\t\t<instance_geometry url=\"#ID" + strconv.Itoa(i) + "\">\n"
 		f.WriteString(ig_url)
 		f.WriteString("\t\t\t\t\t<bind_material>\n")
 		f.WriteString("\t\t\t\t\t\t<technique_common>\n")
-		im_tar := "\t\t\t\t\t\t\t<instance_material symbol=\"Material2\" target=\"#ID" + strconv.FormatInt(i, 10) + "-material\">\n"
+		im_tar := "\t\t\t\t\t\t\t<instance_material symbol=\"Material2\" target=\"#ID" + strconv.Itoa(i) + "-material\">\n"
 		f.WriteString(im_tar)
 		f.WriteString("\t\t\t\t\t\t\t\t<bind_vertex_input semantic=\"UVSET0\" input_semantic=\"TEXCOORD\" input_set=\"0\" />\n")
 		f.WriteString("\t\t\t\t\t\t\t</instance_material>\n")
@@ -102,19 +102,19 @@ func TerrDAE(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64) {
 	var t_normal []string
 
 	// 行(段)単位にモデリングする
-	for row := int64(0); row < id; row++ {
+	for row := 0; row < id; row++ {
 		// // ID番号の設定（iをidに変更）
 		gid := row + 1
 
 		// library_geometries(Position)の書き出し
 		// geometry idの設定
-		geo_id := "\t\t<geometry id=\"ID" + strconv.FormatInt(gid, 10) + "\">\n"
+		geo_id := "\t\t<geometry id=\"ID" + strconv.Itoa(gid) + "\">\n"
 		f.WriteString(geo_id)
 		f.WriteString("\t\t\t<mesh>\n")
 		// source idの設定
-		sour_id := "\t\t\t\t<source id=\"ID" + strconv.FormatInt(gid, 10) + "-Pos\">\n"
+		sour_id := "\t\t\t\t<source id=\"ID" + strconv.Itoa(gid) + "-Pos\">\n"
 		f.WriteString(sour_id)
-		fl_arr_id := "\t\t\t\t\t<float_array id=\"ID" + strconv.FormatInt(gid, 10) + "-Pos-array\" count=\"" + strconv.FormatInt(count, 10) + "\">\n"
+		fl_arr_id := "\t\t\t\t\t<float_array id=\"ID" + strconv.Itoa(gid) + "-Pos-array\" count=\"" + strconv.Itoa(count) + "\">\n"
 		f.WriteString(fl_arr_id)
 
 		// マトリックス（３角メッシュ／データ部分）の定義
@@ -135,7 +135,7 @@ func TerrDAE(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64) {
 		// 列ごとに四角ポリゴン(３角メッシュ×２)を最終列までモデリングする
 		// 列番号（X番号）
 		// log.Println("row", row)
-		for col := int64(0); col < x_dot-1; col++ {
+		for col := 0; col < x_dot-1; col++ {
 			// log.Println("col", col)
 			// 左下側３角メッシュを定義する
 			// X･Y座標，標高の割り当て
@@ -226,7 +226,7 @@ func TerrDAE(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64) {
 		f.WriteString("\t\t\t\t\t</float_array>\n")
 		f.WriteString("\t\t\t\t\t<technique_common>\n")
 		// accessor count, sourceの設定
-		accsor := "\t\t\t\t\t\t<accessor count=\"" + strconv.FormatInt(ver_num, 10) + "\" source=\"#ID" + strconv.FormatInt(gid, 10) + "-Pos-array\" stride=\"3\">\n"
+		accsor := "\t\t\t\t\t\t<accessor count=\"" + strconv.Itoa(ver_num) + "\" source=\"#ID" + strconv.Itoa(gid) + "-Pos-array\" stride=\"3\">\n"
 		f.WriteString(accsor)
 		f.WriteString("\t\t\t\t\t\t\t<param name=\"X\" type=\"float\" />\n")
 		f.WriteString("\t\t\t\t\t\t\t<param name=\"Y\" type=\"float\" />\n")
@@ -236,9 +236,9 @@ func TerrDAE(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64) {
 		f.WriteString("\t\t\t\t</source>\n")
 
 		// library_geometries(Normal)の書き出し
-		sour_id2 := "\t\t\t\t<source id=\"ID" + strconv.FormatInt(gid, 10) + "-Normal\">\n"
+		sour_id2 := "\t\t\t\t<source id=\"ID" + strconv.Itoa(gid) + "-Normal\">\n"
 		f.WriteString(sour_id2)
-		fl_arr_id2 := "\t\t\t\t\t<float_array id=\"ID" + strconv.FormatInt(gid, 10) + "-Normal-array\" count=\"" + strconv.FormatInt(count, 10) + "\">\n"
+		fl_arr_id2 := "\t\t\t\t\t<float_array id=\"ID" + strconv.Itoa(gid) + "-Normal-array\" count=\"" + strconv.Itoa(count) + "\">\n"
 		f.WriteString(fl_arr_id2)
 
 		// 法線ベクトルの書き出し
@@ -249,7 +249,7 @@ func TerrDAE(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64) {
 		f.WriteString("\t\t\t\t\t</float_array>\n")
 		f.WriteString("\t\t\t\t\t<technique_common>\n")
 		// accessor coount, sourceの設定
-		accsor2 := "\t\t\t\t\t\t<accessor count=\"" + strconv.FormatInt(ver_num, 10) + "\" source=\"#ID" + strconv.FormatInt(gid, 10) + "-Noamal-array\" stride=\"3\">\n"
+		accsor2 := "\t\t\t\t\t\t<accessor count=\"" + strconv.Itoa(ver_num) + "\" source=\"#ID" + strconv.Itoa(gid) + "-Noamal-array\" stride=\"3\">\n"
 		f.WriteString(accsor2)
 		f.WriteString("\t\t\t\t\t\t\t<param name=\"X\" type=\"float\" />\n")
 		f.WriteString("\t\t\t\t\t\t\t<param name=\"Y\" type=\"float\" />\n")
@@ -260,22 +260,22 @@ func TerrDAE(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64) {
 
 		// vertices + polilystの書き出し
 		// verticesの書き出し
-		id_vtx := "\t\t\t\t<vertices id=\"ID" + strconv.FormatInt(gid, 10) + "-Vtx\">\n"
+		id_vtx := "\t\t\t\t<vertices id=\"ID" + strconv.Itoa(gid) + "-Vtx\">\n"
 		f.WriteString(id_vtx)
-		id_pos := "\t\t\t\t\t<input semantic=\"POSITION\" source=\"#ID" + strconv.FormatInt(gid, 10) + "-Pos\" />\n"
+		id_pos := "\t\t\t\t\t<input semantic=\"POSITION\" source=\"#ID" + strconv.Itoa(gid) + "-Pos\" />\n"
 		f.WriteString(id_pos)
-		id_nor := "\t\t\t\t\t<input semantic=\"NORMAL\" source=\"#ID" + strconv.FormatInt(gid, 10) + "-Normal\" />\n"
+		id_nor := "\t\t\t\t\t<input semantic=\"NORMAL\" source=\"#ID" + strconv.Itoa(gid) + "-Normal\" />\n"
 		f.WriteString(id_nor)
 		f.WriteString("\t\t\t\t</vertices>\n")
 
-		poly_mate := "\t\t\t\t<polylist count=\"" + strconv.FormatInt(poly_mate_cnt, 10) + "\" material=\"Material2\">\n"
+		poly_mate := "\t\t\t\t<polylist count=\"" + strconv.Itoa(poly_mate_cnt) + "\" material=\"Material2\">\n"
 		f.WriteString(poly_mate)
-		sour_id3 := "\t\t\t\t\t<input offset=\"0\" semantic=\"VERTEX\" source=\"#ID" + strconv.FormatInt(gid, 10) + "-Vtx\" />\n"
+		sour_id3 := "\t\t\t\t\t<input offset=\"0\" semantic=\"VERTEX\" source=\"#ID" + strconv.Itoa(gid) + "-Vtx\" />\n"
 		f.WriteString(sour_id3)
 
 		// <vcount>～</vcount>
 		var vcnt []int
-		for j := int64(0); j < meshcount; j++ {
+		for j := 0; j < meshcount; j++ {
 			vcnt = append(vcnt, 3)
 		}
 		var t_vcnt []string
@@ -286,13 +286,13 @@ func TerrDAE(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64) {
 
 		// <p>～</p>
 		p_num := ver_num
-		var p_no []int64
-		for j := int64(0); j < p_num; j++ {
+		var p_no []int
+		for j := 0; j < p_num; j++ {
 			p_no = append(p_no, j)
 		}
 		var t_pnum []string
 		for v := range p_no {
-			t_pnum = append(t_pnum, strconv.FormatInt(p_no[v], 10))
+			t_pnum = append(t_pnum, strconv.Itoa(p_no[v]))
 		}
 		f.WriteString("\t\t\t\t\t<p> " + strings.Join(t_pnum, " ") + " </p>\n")
 		f.WriteString("\t\t\t\t</polylist>\n")
@@ -303,10 +303,10 @@ func TerrDAE(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64) {
 	// library_materialsの書き出し
 	f.WriteString("\t</library_geometries>\n")
 	f.WriteString("\t<library_materials>\n")
-	for i := int64(1); i <= id; i++ {
-		mate_id := "\t\t<material id=\"ID" + strconv.FormatInt(i, 10) + "-material\">\n"
+	for i := 1; i <= id; i++ {
+		mate_id := "\t\t<material id=\"ID" + strconv.Itoa(i) + "-material\">\n"
 		f.WriteString(mate_id)
-		effe_url := "\t\t\t<instance_effect url=\"#ID" + strconv.FormatInt(i, 10) + "-surface\" />\n"
+		effe_url := "\t\t\t<instance_effect url=\"#ID" + strconv.Itoa(i) + "-surface\" />\n"
 		f.WriteString(effe_url)
 		f.WriteString("\t\t</material>\n")
 	}
@@ -314,8 +314,8 @@ func TerrDAE(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64) {
 	f.WriteString("\t<library_effects>\n")
 
 	// library_effectsの書き出し
-	for i := int64(1); i <= id; i++ {
-		effe_id := "\t\t<effect id=\"ID" + strconv.FormatInt(i, 10) + "-surface\">\n"
+	for i := 1; i <= id; i++ {
+		effe_id := "\t\t<effect id=\"ID" + strconv.Itoa(i) + "-surface\">\n"
 		f.WriteString(effe_id)
 		f.WriteString("\t\t\t<profile_COMMON>\n")
 		f.WriteString("\t\t\t\t<technique sid=\"COMMON\">\n")

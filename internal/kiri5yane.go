@@ -45,7 +45,24 @@ func Kiri5Yane(list [][]float64, toph, hisashi, keraba, incline,
 	var xtp3, ytp3 float64
 	var xtp4, ytp4 float64
 
-	// ５角形屋根の棟方向を妻面と平面の長さを比較してチェックする
+	// ５角形屋根の頂点の直角と広角の配置から棟方向を決める
+	// 頂点の角度を調べる
+
+	// var deg []float64
+	// for i := 1; i < 4; i++ {
+	// 	d := pkg.TriAngle(list[i-1][0], list[i-1][1], list[i][0], list[i][1], list[i+1][0], list[i+1][1])
+	// 	deg = append(deg, d)
+	// }
+
+	// 屋根モデルの頂点座標をリストに書き出す
+	// 屋根頂点の法線ベクトルを算出してリストに書き出す
+	var yanepoly []float64
+	var nor_all [][]float64
+	var normal []float64
+	var nor []float64
+	p := make([][]float64, 3)
+	s := make([][]float64, 4)
+
 	d1 := pkg.DistVerts(x1, y1, x2, y2)
 	d2 := pkg.DistVerts(x5, y5, x1, y1)
 	log.Println("d1, d2", d1, d2)
@@ -55,25 +72,24 @@ func Kiri5Yane(list [][]float64, toph, hisashi, keraba, incline,
 		// 頂点5と頂点1を結ぶ線分に平行な直線の式（平面）// 軒庇の下端
 		m4, n4 := pkg.ParaLine(x5, y5, x1, y1, x2, y2, hich)
 		// 頂点2と頂点3を結ぶ線分に平行な直線の式（平面）
-		mh, nh := pkg.ParaLine(x2, y2, x3, y3, x4, y4, hich)
+		mh, nh := pkg.ParaLine(x2, y2, x3, y3, x5, y5, hich)
 		// 頂点4と頂点5を結ぶ線分に平行な直線の式（妻面）
 		mk, nk := pkg.ParaLine(x4, y4, x5, y5, x2, y2, kich)
 		// 頂点3と頂点4の合成頂点を求める
-		xo2, yo2 = pkg.SeekInsec(mh, nh, mk, nk)
+		xo3, yo3 = pkg.SeekInsec(mh, nh, mk, nk)
 		// 屋根伏せの4頂点の座標を求める（軒庇の下端）
-		xo1, yo1 = pkg.SeekInsec(m1, n1, mh, nh)
-		xo3, yo3 = pkg.SeekInsec(mk, nk, m4, n4)
-		xo4, yo4 = pkg.SeekInsec(m4, n4, m1, n1)
+		xo1, yo1 = pkg.SeekInsec(m4, n4, m1, n1)
+		xo2, yo2 = pkg.SeekInsec(m1, n1, mh, nh)
+		xo4, yo4 = pkg.SeekInsec(mk, nk, m4, n4)
 		// 頂点2と頂点3を結ぶ線分に平行な直線の式（平面）// 軒庇の上端
 		mtp3, ntp3 := pkg.ParaLine(x2, y2, x3, y3, x1, y1, hichtop)
 		// 頂点5と頂点1を結ぶ線分に平行な直線の式（平面）// 軒庇の上端
 		mtp4, ntp4 := pkg.ParaLine(x5, y5, x1, y1, x2, y2, hichtop)
 		// 屋根伏せの4頂点の座標を求める（軒庇の上端）
-		xtp1, ytp1 = pkg.SeekInsec(m1, n1, mtp3, ntp3)
-		xtp2, ytp2 = pkg.SeekInsec(mtp3, ntp3, mk, nk)
-		xtp3, ytp3 = pkg.SeekInsec(mk, nk, mtp4, ntp4)
-		xtp4, ytp4 = pkg.SeekInsec(mtp4, ntp4, m1, n1)
-
+		xtp1, ytp1 = pkg.SeekInsec(mtp4, ntp4, m1, n1)
+		xtp2, ytp2 = pkg.SeekInsec(m1, n1, mtp3, ntp3)
+		xtp3, ytp3 = pkg.SeekInsec(mtp3, ntp3, mk, nk)
+		xtp4, ytp4 = pkg.SeekInsec(mk, nk, mtp4, ntp4)
 	} else if d1 > d2 {
 		// 頂点5と頂点1を結ぶ線分に平行な直線の式（妻面）
 		m4, n4 := pkg.ParaLine(x5, y5, x1, y1, x2, y2, kich)
@@ -127,13 +143,6 @@ func Kiri5Yane(list [][]float64, toph, hisashi, keraba, incline,
 
 	// 屋根モデルの頂点座標をリストに書き出す
 	// 屋根頂点の法線ベクトルを算出してリストに書き出す
-	var yanepoly []float64
-	var nor_all [][]float64
-	var normal []float64
-	var nor []float64
-	p := make([][]float64, 3)
-	s := make([][]float64, 4)
-
 	yanepoly = append(yanepoly, xo1, yo1, nbt) // 屋根底面・三角形１
 	yanepoly = append(yanepoly, xo2, yo2, nbt)
 	yanepoly = append(yanepoly, xm1, ym1, mbt1)

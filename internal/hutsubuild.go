@@ -66,12 +66,12 @@ func SquarePoly() {
 		jStr = strings.TrimRight(jStr, ",")
 
 		// MultiPolygonをLineStringに置換する
-		if strings.Contains(jStr, "[ [ [ [") == true {
+		if strings.Contains(jStr, "[ [ [ [") {
 			jStr = strings.Replace(jStr, "[ [ [ [", "[ [", 1)
 			jStr = strings.Replace(jStr, "] ] ] ]", "] ]", 1)
 		}
 		// PolygonをLineStringに置換する
-		if strings.Contains(jStr, "[ [ [") == true {
+		if strings.Contains(jStr, "[ [ [") {
 			jStr = strings.Replace(jStr, "[ [ [", "[ [", 1)
 			jStr = strings.Replace(jStr, "] ] ]", "] ]", 1)
 		}
@@ -98,7 +98,7 @@ func SquarePoly() {
 		// 閉じた図形かどうかを判断し頂点数を求める
 		chkCls := pkg.ChkClose(l, cords)
 		var numV int
-		if chkCls == true {
+		if chkCls {
 			numV = l - 1
 		} else {
 			numV = l
@@ -122,14 +122,22 @@ func SquarePoly() {
 			nDeg = degLst[:numV]
 		}
 
-		// 内角が約180度の頂点を削除する
-		// 対象とする内角の削除はflattenvert.goで行う
-		nodz, cordz, extLz, degLz := pkg.FlatVert(numV, nCords, nExt, nDeg)
-
 		// 近接している頂点を削除する
 		// 頂点間の距離の計算はnododel.goで行う
-		nod2, cord2, extL2, deg2 := pkg.DelNode(nodz, cordz, extLz, degLz)
-		// log.Println("nod2", nod2)
+		nodz, cordz, extz, degz := pkg.DelNode(numV, nCords, nExt, nDeg)
+		var cord1 [][]float64
+		for i := 0; i < nodz; i++ {
+			cord1 = append(cord1, cordz[i])
+		}
+
+		// 内角が約180度の頂点を削除する
+		// 対象とする内角の削除はflattenvert.goで行う
+		nod2, cord2, ext2, deg2 := pkg.FlatVert(nodz, cordz, extz, degz)
+
+		// 超点数が4未満の場合は多角形の箱モデルでモデリングする
+		if nod2 < 4 {
+			slR = false
+		}
 
 		// 内角条件を設定し，満たさない内角がある場合は，四角形分割に適さない
 		var errang []int
@@ -150,7 +158,7 @@ func SquarePoly() {
 		// L点の座標リストを作成する
 		// 頂点並びのL点・R点の辞書を作成する
 		// L点とR点をリストおよび辞書に振り分ける
-		lL, _, order, lrPtn, lrIdx := pkg.Lexicogra(nod2, cord2, extL2)
+		lL, _, order, lrPtn, lrIdx := pkg.Lexicogra(nod2, cord2, ext2)
 		// log.Println("lL", lL)
 		// log.Println("len(lL)", len(lL))
 		log.Println("order", order)
@@ -176,7 +184,7 @@ func SquarePoly() {
 
 		// 四角形の場合の処理
 		// 傾斜屋根モデリングのプログラムに処理を渡す
-		if slR == true {
+		if slR {
 			if nod2 == 4 {
 				// 四角形に切妻屋根を掛ける
 				rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: cord2}
@@ -206,17 +214,22 @@ func SquarePoly() {
 
 			} else if nod2 == 7 {
 				// ７角形を３つに分割して片流れ屋根を掛ける
-				rect1L, rect2L, rect3L, type1L, type2L, type3L, story := pkg.HeptaDiv(lrPtn, deg2, cord2, order)
+				rect1L, rect2L, rect3L, type1L, type2L, type3L, story, chk7 := pkg.HeptaDiv(lrPtn, deg2, cord2, order)
 
-				rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: type3L, Area: area, List: rect3L}
-				rectList = append(rectList, &rect3)
-				log.Println("rect3=", rect3)
-				rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: type1L, Area: area, List: rect1L}
-				rectList = append(rectList, &rect1)
-				log.Println("rect1=", rect1)
-				rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: type2L, Area: area, List: rect2L}
-				rectList = append(rectList, &rect2)
-				log.Println("rect2=", rect2)
+				if !chk7 {
+					poly := Polygon{ID: id, Elv: elv, Area: area, List: cord2}
+					polyList = append(polyList, &poly)
+				} else if chk7 {
+					rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: type3L, Area: area, List: rect3L}
+					rectList = append(rectList, &rect3)
+					log.Println("rect3=", rect3)
+					rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: type1L, Area: area, List: rect1L}
+					rectList = append(rectList, &rect1)
+					log.Println("rect1=", rect1)
+					rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: type2L, Area: area, List: rect2L}
+					rectList = append(rectList, &rect2)
+					log.Println("rect2=", rect2)
+				}
 
 			} else if nod2 == 8 {
 				// ８角形の四角形分割
@@ -283,114 +296,24 @@ func SquarePoly() {
 			} else if nod2 <= 13 {
 				// 頂点数が奇数の場合，5角形を1つ分離して，残りの多角形を四角形分割する
 				// 角度が最も大きく両側の頂点の角度が90度に近い頂点を選択する
-				slice1, slice2, result := pkg.OddPoly(lrPtn, lrIdx, deg2, cord2, order)
+				slice1, slice2, result13 := pkg.OddPoly(lrPtn, lrIdx, deg2, cord2, order)
 
-				// slice1 の内角を求め直して５角形に屋根を掛ける
-				num1 := len(slice1)
-				if num1 == 4 {
-					// 四角形に切妻屋根を掛ける
-					rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: slice1}
-					rectList = append(rectList, &rect0)
-
-				} else if num1 == 5 {
-					// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
-					_, deg5, _ := pkg.TriVert(num1, slice1)
-					// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
-					cord5, yane := pkg.PentaNode(deg5, slice1)
-
-					rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: yane, Area: area, List: cord5}
-					rectList = append(rectList, &rect0)
-				}
-
-				// slice2 の頂点数に応じて四角形分割を行う
-				num2 := len(slice2)
-				// slice2 に適用するには新しいextとdegが必要
-				// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
-				extmp, newdeg, _ := pkg.TriVert(num2, slice2)
-				// FlatVert で内角が約180°の頂点を削除する
-				newnum, newslice, newext, _ := pkg.FlatVert(num2, slice2, extmp, newdeg)
-				// L点，R点の辞書を作り直す
-				_, _, neworder, newPtn, newIdx := pkg.Lexicogra(newnum, newslice, newext)
-				log.Println("newdeg=", newdeg)
-				log.Println("newnum=", newnum)
-				log.Println("newslice=", newslice)
-				log.Println("newext=", newext)
-				log.Println("neworder=", neworder)
-				log.Println("newPtn=", newPtn)
-				log.Println("newIdx=", newIdx)
-
-				// newslice の頂点数に応じて屋根を掛ける
-				if len(newslice) == 4 {
-					// 四角形に切妻屋根を掛ける
-					rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: newslice}
-					rectList = append(rectList, &rect0)
-
-				} else if len(newslice) == 5 {
-					// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
-					_, deg5, _ := pkg.TriVert(newnum, newslice)
-					// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
-					cord5, yane := pkg.PentaNode(deg5, newslice)
-
-					rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: yane, Area: area, List: cord5}
-					rectList = append(rectList, &rect0)
-
-				} else if len(newslice) == 6 {
-					// ６角形の四角形分割
-					_, rect1L, rect2L := pkg.HexaDiv(newslice, neworder)
-					if rect1L == nil || rect2L == nil {
-						log.Println("6角形を四角形分割できない\n", id, elv, newslice)
-						poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
-						polyList = append(polyList, &poly)
-					} else {
-						rect1 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: rect1L}
-						rectList = append(rectList, &rect1)
-						rect2 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: rect2L}
-						rectList = append(rectList, &rect2)
-					}
-
-				} else if len(newslice) == 7 {
-					// ７角形を３つに分割して片流れ屋根を掛ける
-					rect1L, rect2L, rect3L, type1L, type2L, type3L, story := pkg.HeptaDiv(newPtn, newdeg, newslice, neworder)
-
-					rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: type3L, Area: area, List: rect3L}
-					rectList = append(rectList, &rect3)
-					log.Println("rect3=", rect3)
-					rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: type1L, Area: area, List: rect1L}
-					rectList = append(rectList, &rect1)
-					log.Println("rect1=", rect1)
-					rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: type2L, Area: area, List: rect2L}
-					rectList = append(rectList, &rect2)
-					log.Println("rect2=", rect2)
-
-				} else if len(newslice) == 8 {
-					// ８角形の四角形分割
-					_, rect1L, rect2L, rect3L, story, yane := pkg.OctaDiv(newslice, neworder, newPtn, newIdx)
-					if rect1L == nil || rect2L == nil || rect3L == nil {
-						log.Println("8角形を四角形分割できない\n", id, elv, newslice)
-						poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
-						polyList = append(polyList, &poly)
-					} else {
-						rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: yane[0], Area: area, List: rect1L}
-						rectList = append(rectList, &rect1)
-						rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: yane[1], Area: area, List: rect2L}
-						rectList = append(rectList, &rect2)
-						rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: yane[2], Area: area, List: rect3L}
-						rectList = append(rectList, &rect3)
-					}
-
-				} else if len(newslice) == 9 {
-					// ９角形の四角形分割
-					slice1, slice2, result9 := pkg.OddPoly(newPtn, newIdx, newdeg, newslice, neworder)
-
-					// slice1に頂点数に応じて屋根を掛ける
+				if result13 {
+					// slice1 の内角を求め直して５角形に屋根を掛ける
 					num1 := len(slice1)
-					if len(newslice) == 4 {
-						// 四角形に切妻屋根を掛ける
-						rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: newslice}
-						rectList = append(rectList, &rect0)
+					if num1 == 4 {
+						// 内角を確認して，内角が条件を満たさない場合は傾斜屋根を掛けない
+						chk := pkg.AnglChk(slice1)
+						if !chk {
+							rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "flat", Area: area, List: slice1}
+							rectList = append(rectList, &rect0)
+						} else if chk {
+							// 四角形に切妻屋根を掛ける
+							rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: slice1}
+							rectList = append(rectList, &rect0)
+						}
 
 					} else if num1 == 5 {
-						// slice1 の内角を求め直して５角形に屋根を掛ける
 						// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
 						_, deg5, _ := pkg.TriVert(num1, slice1)
 						// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
@@ -408,16 +331,29 @@ func SquarePoly() {
 					// FlatVert で内角が約180°の頂点を削除する
 					newnum, newslice, newext, _ := pkg.FlatVert(num2, slice2, extmp, newdeg)
 					// L点，R点の辞書を作り直す
-					_, _, neworder, newPtn, _ := pkg.Lexicogra(newnum, newslice, newext)
+					_, _, neworder, newPtn, newIdx := pkg.Lexicogra(newnum, newslice, newext)
+					log.Println("newdeg=", newdeg)
+					log.Println("newnum=", newnum)
+					log.Println("newslice=", newslice)
+					log.Println("newext=", newext)
+					log.Println("neworder=", neworder)
+					log.Println("newPtn=", newPtn)
+					log.Println("newIdx=", newIdx)
 
 					// newslice の頂点数に応じて屋根を掛ける
 					if len(newslice) == 4 {
-						// 四角形に切妻屋根を掛ける
-						rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: newslice}
-						rectList = append(rectList, &rect0)
+						// 内角を確認して，内角が条件を満たさない場合は傾斜屋根を掛けない
+						chk := pkg.AnglChk(newslice)
+						if !chk {
+							rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "flat", Area: area, List: newslice}
+							rectList = append(rectList, &rect0)
+						} else if chk {
+							// 四角形に切妻屋根を掛ける
+							rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: newslice}
+							rectList = append(rectList, &rect0)
+						}
 
 					} else if len(newslice) == 5 {
-						// slice1 の内角を求め直して５角形に屋根を掛ける
 						// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
 						_, deg5, _ := pkg.TriVert(newnum, newslice)
 						// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
@@ -439,44 +375,387 @@ func SquarePoly() {
 							rect2 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: rect2L}
 							rectList = append(rectList, &rect2)
 						}
+
 					} else if len(newslice) == 7 {
-						// ７角形の四角形分割
-						rect1L, rect2L, rect3L, type1L, type2L, type3L, story := pkg.HeptaDiv(newPtn, newdeg, newslice, neworder)
+						// ７角形を３つに分割して片流れ屋根を掛ける
+						rect1L, rect2L, rect3L, type1L, type2L, type3L, story, chk7 := pkg.HeptaDiv(newPtn, newdeg, newslice, neworder)
 
-						rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: type3L, Area: area, List: rect3L}
-						rectList = append(rectList, &rect3)
-						log.Println("rect3=", rect3)
-						rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: type1L, Area: area, List: rect1L}
-						rectList = append(rectList, &rect1)
-						log.Println("rect1=", rect1)
-						rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: type2L, Area: area, List: rect2L}
-						rectList = append(rectList, &rect2)
-						log.Println("rect2=", rect2)
-					}
+						if !chk7 {
+							poly := Polygon{ID: id, Elv: elv, Area: area, List: cord2}
+							polyList = append(polyList, &poly)
+						} else if chk7 {
+							rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: type3L, Area: area, List: rect3L}
+							rectList = append(rectList, &rect3)
+							log.Println("rect3=", rect3)
+							rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: type1L, Area: area, List: rect1L}
+							rectList = append(rectList, &rect1)
+							log.Println("rect1=", rect1)
+							rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: type2L, Area: area, List: rect2L}
+							rectList = append(rectList, &rect2)
+							log.Println("rect2=", rect2)
+						}
 
-					if result9 == false {
-						poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
-						polyList = append(polyList, &poly)
+					} else if len(newslice) == 8 {
+						// ８角形の四角形分割
+						_, rect1L, rect2L, rect3L, story, yane := pkg.OctaDiv(newslice, neworder, newPtn, newIdx)
+						if rect1L == nil || rect2L == nil || rect3L == nil {
+							log.Println("8角形を四角形分割できない\n", id, elv, newslice)
+							poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
+							polyList = append(polyList, &poly)
+						} else {
+							rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: yane[0], Area: area, List: rect1L}
+							rectList = append(rectList, &rect1)
+							rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: yane[1], Area: area, List: rect2L}
+							rectList = append(rectList, &rect2)
+							rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: yane[2], Area: area, List: rect3L}
+							rectList = append(rectList, &rect3)
+						}
+
+					} else if len(newslice) == 9 {
+						// ９角形の四角形分割
+						slice1, slice2, result9 := pkg.OddPoly(newPtn, newIdx, newdeg, newslice, neworder)
+
+						if result9 {
+							// slice1に頂点数に応じて屋根を掛ける
+							num1 := len(slice1)
+							if len(slice1) == 4 {
+								// 内角を確認して，内角が条件を満たさない場合は傾斜屋根を掛けない
+								chk := pkg.AnglChk(slice1)
+								if !chk {
+									rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "flat", Area: area, List: slice1}
+									rectList = append(rectList, &rect0)
+								} else if chk {
+									// 四角形に切妻屋根を掛ける
+									rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: slice1}
+									rectList = append(rectList, &rect0)
+								}
+
+							} else if num1 == 5 {
+								// slice1 の内角を求め直して５角形に屋根を掛ける
+								// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
+								_, deg5, _ := pkg.TriVert(num1, slice1)
+								// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
+								cord5, yane := pkg.PentaNode(deg5, slice1)
+
+								rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: yane, Area: area, List: cord5}
+								rectList = append(rectList, &rect0)
+							}
+
+							// slice2 の頂点数に応じて四角形分割を行う
+							num2 := len(slice2)
+							// slice2 に適用するには新しいextとdegが必要
+							// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
+							extmp, newdeg, _ := pkg.TriVert(num2, slice2)
+							// FlatVert で内角が約180°の頂点を削除する
+							newnum, newslice, newext, _ := pkg.FlatVert(num2, slice2, extmp, newdeg)
+							// L点，R点の辞書を作り直す
+							_, _, neworder, newPtn, _ := pkg.Lexicogra(newnum, newslice, newext)
+
+							// newslice の頂点数に応じて屋根を掛ける
+							if len(newslice) == 4 {
+								// 内角を確認して，内角が条件を満たさない場合は傾斜屋根を掛けない
+								chk := pkg.AnglChk(newslice)
+								if !chk {
+									rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "flat", Area: area, List: newslice}
+									rectList = append(rectList, &rect0)
+								} else if chk {
+									// 四角形に切妻屋根を掛ける
+									rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: newslice}
+									rectList = append(rectList, &rect0)
+								}
+
+							} else if len(newslice) == 5 {
+								// slice1 の内角を求め直して５角形に屋根を掛ける
+								// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
+								_, deg5, _ := pkg.TriVert(newnum, newslice)
+								// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
+								cord5, yane := pkg.PentaNode(deg5, newslice)
+
+								rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: yane, Area: area, List: cord5}
+								rectList = append(rectList, &rect0)
+
+							} else if len(newslice) == 6 {
+								// ６角形の四角形分割
+								_, rect1L, rect2L := pkg.HexaDiv(newslice, neworder)
+								if rect1L == nil || rect2L == nil {
+									log.Println("6角形を四角形分割できない\n", id, elv, newslice)
+									poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
+									polyList = append(polyList, &poly)
+								} else {
+									rect1 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: rect1L}
+									rectList = append(rectList, &rect1)
+									rect2 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: rect2L}
+									rectList = append(rectList, &rect2)
+								}
+							} else if len(newslice) == 7 {
+								// ７角形の四角形分割
+								rect1L, rect2L, rect3L, type1L, type2L, type3L, story, chk7 := pkg.HeptaDiv(newPtn, newdeg, newslice, neworder)
+
+								if !chk7 {
+									poly := Polygon{ID: id, Elv: elv, Area: area, List: cord2}
+									polyList = append(polyList, &poly)
+								} else if chk7 {
+									rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: type3L, Area: area, List: rect3L}
+									rectList = append(rectList, &rect3)
+									log.Println("rect3=", rect3)
+									rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: type1L, Area: area, List: rect1L}
+									rectList = append(rectList, &rect1)
+									log.Println("rect1=", rect1)
+									rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: type2L, Area: area, List: rect2L}
+									rectList = append(rectList, &rect2)
+									log.Println("rect2=", rect2)
+								}
+							}
+						}
+						if !result9 {
+							poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
+							polyList = append(polyList, &poly)
+						}
+
+					} else if len(newslice) == 10 {
+						// 10角形の四角形分割
+						rect1L, rect2L, rect3L, rect4L, story, yane := pkg.DecaDiv(cord2, order, lrPtn, lrIdx)
+						if rect1L == nil || rect2L == nil || rect3L == nil || rect4L == nil {
+							log.Println("10角形を四角形分割できない\n", id, elv, cord2)
+							poly := Polygon{ID: id, Elv: elv, Area: area, List: cord2}
+							polyList = append(polyList, &poly)
+						} else {
+							// oct1Lは８角形の四角形分割プログラムに渡されて四角形分割される
+							rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: yane[0], Area: area, List: rect1L}
+							rectList = append(rectList, &rect1)
+							rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: yane[1], Area: area, List: rect2L}
+							rectList = append(rectList, &rect2)
+							rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: yane[2], Area: area, List: rect3L}
+							rectList = append(rectList, &rect3)
+							rect4 := SlopeRoof{ID: id, Elv: elv, Story: 1, Type: "kata", Area: area, List: rect4L}
+							rectList = append(rectList, &rect4)
+							// log.Println("rectList=", rectList)
+						}
+						log.Println("story=", story)
+						log.Println("yane=", yane)
+
+					} else if len(newslice) == 11 {
+						// 11角形の四角形分割
+						slice1, slice2, result11 := pkg.OddPoly(newPtn, newIdx, newdeg, newslice, neworder)
+
+						if result11 {
+							// slice1に頂点数に応じて屋根を掛ける
+							num1 := len(slice1)
+							if len(slice1) == 4 {
+								// 内角を確認して，内角が条件を満たさない場合は傾斜屋根を掛けない
+								chk := pkg.AnglChk(slice1)
+								if !chk {
+									rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "flat", Area: area, List: slice1}
+									rectList = append(rectList, &rect0)
+								} else if chk {
+									// 四角形に切妻屋根を掛ける
+									rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: slice1}
+									rectList = append(rectList, &rect0)
+								}
+
+							} else if num1 == 5 {
+								// slice1 の内角を求め直して５角形に屋根を掛ける
+								// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
+								_, deg5, _ := pkg.TriVert(num1, slice1)
+								// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
+								cord5, yane := pkg.PentaNode(deg5, slice1)
+
+								rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: yane, Area: area, List: cord5}
+								rectList = append(rectList, &rect0)
+							}
+
+							// slice2 の頂点数に応じて四角形分割を行う
+							num2 := len(slice2)
+							// slice2 に適用するには新しいextとdegが必要
+							// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
+							extmp, newdeg, _ := pkg.TriVert(num2, slice2)
+							// FlatVert で内角が約180°の頂点を削除する
+							newnum, newslice, newext, _ := pkg.FlatVert(num2, slice2, extmp, newdeg)
+							// L点，R点の辞書を作り直す
+							_, _, neworder, newPtn, _ := pkg.Lexicogra(newnum, newslice, newext)
+
+							// newslice の頂点数に応じて屋根を掛ける
+							if len(newslice) == 4 {
+								// 内角を確認して，内角が条件を満たさない場合は傾斜屋根を掛けない
+								chk := pkg.AnglChk(newslice)
+								if !chk {
+									rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "flat", Area: area, List: newslice}
+									rectList = append(rectList, &rect0)
+								} else if chk {
+									// 四角形に切妻屋根を掛ける
+									rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: newslice}
+									rectList = append(rectList, &rect0)
+								}
+
+							} else if len(newslice) == 5 {
+								// slice1 の内角を求め直して５角形に屋根を掛ける
+								// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
+								_, deg5, _ := pkg.TriVert(newnum, newslice)
+								// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
+								cord5, yane := pkg.PentaNode(deg5, newslice)
+
+								rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: yane, Area: area, List: cord5}
+								rectList = append(rectList, &rect0)
+
+							} else if len(newslice) == 6 {
+								// ６角形の四角形分割
+								_, rect1L, rect2L := pkg.HexaDiv(newslice, neworder)
+								if rect1L == nil || rect2L == nil {
+									log.Println("6角形を四角形分割できない\n", id, elv, newslice)
+									poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
+									polyList = append(polyList, &poly)
+								} else {
+									rect1 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: rect1L}
+									rectList = append(rectList, &rect1)
+									rect2 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: rect2L}
+									rectList = append(rectList, &rect2)
+								}
+
+							} else if len(newslice) == 7 {
+								// ７角形の四角形分割
+								rect1L, rect2L, rect3L, type1L, type2L, type3L, story, chk7 := pkg.HeptaDiv(newPtn, newdeg, newslice, neworder)
+
+								if !chk7 {
+									poly := Polygon{ID: id, Elv: elv, Area: area, List: cord2}
+									polyList = append(polyList, &poly)
+								} else if chk7 {
+									rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: type3L, Area: area, List: rect3L}
+									rectList = append(rectList, &rect3)
+									log.Println("rect3=", rect3)
+									rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: type1L, Area: area, List: rect1L}
+									rectList = append(rectList, &rect1)
+									log.Println("rect1=", rect1)
+									rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: type2L, Area: area, List: rect2L}
+									rectList = append(rectList, &rect2)
+									log.Println("rect2=", rect2)
+								}
+
+							} else if len(newslice) == 8 {
+								// ８角形の四角形分割
+								_, rect1L, rect2L, rect3L, story, yane := pkg.OctaDiv(newslice, neworder, newPtn, newIdx)
+								if rect1L == nil || rect2L == nil || rect3L == nil {
+									log.Println("8角形を四角形分割できない\n", id, elv, newslice)
+									poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
+									polyList = append(polyList, &poly)
+								} else {
+									rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: yane[0], Area: area, List: rect1L}
+									rectList = append(rectList, &rect1)
+									rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: yane[1], Area: area, List: rect2L}
+									rectList = append(rectList, &rect2)
+									rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: yane[2], Area: area, List: rect3L}
+									rectList = append(rectList, &rect3)
+								}
+
+							} else if len(newslice) == 9 {
+								// ９角形の四角形分割
+								slice1, slice2, result9 := pkg.OddPoly(newPtn, newIdx, newdeg, newslice, neworder)
+
+								if result9 {
+									// slice1に頂点数に応じて屋根を掛ける
+									num1 := len(slice1)
+									if len(slice1) == 4 {
+										// 内角を確認して，内角が条件を満たさない場合は傾斜屋根を掛けない
+										chk := pkg.AnglChk(slice1)
+										if !chk {
+											rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "flat", Area: area, List: slice1}
+											rectList = append(rectList, &rect0)
+										} else if chk {
+											// 四角形に切妻屋根を掛ける
+											rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: slice1}
+											rectList = append(rectList, &rect0)
+										}
+
+									} else if num1 == 5 {
+										// slice1 の内角を求め直して５角形に屋根を掛ける
+										// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
+										_, deg5, _ := pkg.TriVert(num1, slice1)
+										// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
+										cord5, yane := pkg.PentaNode(deg5, slice1)
+
+										rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: yane, Area: area, List: cord5}
+										rectList = append(rectList, &rect0)
+									}
+
+									// slice2 の頂点数に応じて四角形分割を行う
+									num2 := len(slice2)
+									// slice2 に適用するには新しいextとdegが必要
+									// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
+									extmp, newdeg, _ := pkg.TriVert(num2, slice2)
+									// FlatVert で内角が約180°の頂点を削除する
+									newnum, newslice, newext, _ := pkg.FlatVert(num2, slice2, extmp, newdeg)
+									// L点，R点の辞書を作り直す
+									_, _, neworder, newPtn, _ := pkg.Lexicogra(newnum, newslice, newext)
+
+									// newslice の頂点数に応じて屋根を掛ける
+									if len(newslice) == 4 {
+										// 内角を確認して，内角が条件を満たさない場合は傾斜屋根を掛けない
+										chk := pkg.AnglChk(newslice)
+										if !chk {
+											rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "flat", Area: area, List: newslice}
+											rectList = append(rectList, &rect0)
+										} else if chk {
+											// 四角形に切妻屋根を掛ける
+											rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: newslice}
+											rectList = append(rectList, &rect0)
+										}
+
+									} else if len(newslice) == 5 {
+										// slice1 の内角を求め直して５角形に屋根を掛ける
+										// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
+										_, deg5, _ := pkg.TriVert(newnum, newslice)
+										// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
+										cord5, yane := pkg.PentaNode(deg5, newslice)
+
+										rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: yane, Area: area, List: cord5}
+										rectList = append(rectList, &rect0)
+
+									} else if len(newslice) == 6 {
+										// ６角形の四角形分割
+										_, rect1L, rect2L := pkg.HexaDiv(newslice, neworder)
+										if rect1L == nil || rect2L == nil {
+											log.Println("6角形を四角形分割できない\n", id, elv, newslice)
+											poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
+											polyList = append(polyList, &poly)
+										} else {
+											rect1 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: rect1L}
+											rectList = append(rectList, &rect1)
+											rect2 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: rect2L}
+											rectList = append(rectList, &rect2)
+										}
+
+									} else if len(newslice) == 7 {
+										// ７角形の四角形分割
+										rect1L, rect2L, rect3L, type1L, type2L, type3L, story, chk7 := pkg.HeptaDiv(newPtn, newdeg, newslice, neworder)
+
+										if !chk7 {
+											poly := Polygon{ID: id, Elv: elv, Area: area, List: cord2}
+											polyList = append(polyList, &poly)
+										} else if chk7 {
+											rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: type3L, Area: area, List: rect3L}
+											rectList = append(rectList, &rect3)
+											log.Println("rect3=", rect3)
+											rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: type1L, Area: area, List: rect1L}
+											rectList = append(rectList, &rect1)
+											log.Println("rect1=", rect1)
+											rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: type2L, Area: area, List: rect2L}
+											rectList = append(rectList, &rect2)
+											log.Println("rect2=", rect2)
+										}
+									}
+								}
+								if !result9 {
+									poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
+									polyList = append(polyList, &poly)
+								}
+							}
+						}
+						if !result11 {
+							poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
+							polyList = append(polyList, &poly)
+						}
 					}
 				}
-
-				// } else if num1 == 4 {
-				// 	if len(slice2) == 7 {
-				// 		// ７角形を３つに分割して片流れ屋根を掛ける
-				// 		rect1L, rect2L, rect3L, type1L, type2L, type3L, story := pkg.HeptaDiv(lrPtn, deg2, cord2, order)
-
-				// 		rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: type3L, Area: area, List: rect3L}
-				// 		rectList = append(rectList, &rect3)
-				// 		log.Println("rect3=", rect3)
-				// 		rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: type1L, Area: area, List: rect1L}
-				// 		rectList = append(rectList, &rect1)
-				// 		log.Println("rect1=", rect1)
-				// 		rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: type2L, Area: area, List: rect2L}
-				// 		rectList = append(rectList, &rect2)
-				// 		log.Println("rect2=", rect2)
-				// 	}
-
-				if result == false {
+				if !result13 {
 					slR = false
 					poly := Polygon{ID: id, Elv: elv, Area: area, List: cord2}
 					polyList = append(polyList, &poly)
@@ -486,87 +765,32 @@ func SquarePoly() {
 				// 14角形から四角形を分割して12角形以下の分割プログラムに渡す
 				slice1, slice2, result14 := pkg.FortenPoly(lrPtn, lrIdx, deg2, cord2, order)
 
-				// newslice の頂点数に応じて屋根を掛ける
-				if len(slice1) == 4 {
-					// 四角形に切妻屋根を掛ける
-					rect1 := SlopeRoof{ID: id, Elv: elv, Story: 1, Type: "kata", Area: area, List: slice1}
-					rectList = append(rectList, &rect1)
+				if result14 {
+					// slice1 の頂点数に応じて屋根を掛ける
+					if len(slice1) == 4 {
+						// 内角を確認して，内角が条件を満たさない場合は傾斜屋根を掛けない
+						chk := pkg.AnglChk(slice1)
+						if !chk {
+							rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "flat", Area: area, List: slice1}
+							rectList = append(rectList, &rect0)
+						} else if chk {
+							// 四角形に切妻屋根を掛ける
+							rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: slice1}
+							rectList = append(rectList, &rect0)
+						}
 
-				} else if len(slice1) == 5 {
-					// slice1 の内角を求め直して５角形に屋根を掛ける
-					// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
-					_, deg5, _ := pkg.TriVert(len(slice1), slice1)
-					// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
-					cord5, yane := pkg.PentaNode(deg5, slice1)
-
-					rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: yane, Area: area, List: cord5}
-					rectList = append(rectList, &rect0)
-				}
-
-				// 分割した多角形の頂点の内角を確認して分割プログラムに渡す
-				// FlatVert で内角が約180°の頂点を削除する
-				// slice2 に適用するには新しいextとdegが必要
-				num2 := len(slice2)
-				// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
-				extmp, newdeg, _ := pkg.TriVert(num2, slice2)
-				// FlatVert で内角が約180°の頂点を削除する
-				newnum, newslice, newext, _ := pkg.FlatVert(num2, slice2, extmp, newdeg)
-				// L点，R点の辞書を作り直す
-				_, _, neworder, newPtn, newIdx := pkg.Lexicogra(newnum, newslice, newext)
-				log.Println("newdeg=", newdeg)
-				log.Println("newnum=", newnum)
-				log.Println("newslice=", newslice)
-				log.Println("newext=", newext)
-				log.Println("neworder=", neworder)
-				log.Println("newPtn=", newPtn)
-				log.Println("newIdx=", newIdx)
-
-				// newslice の頂点数に応じて屋根を掛ける
-				if len(newslice) == 12 {
-					// 12角形の四角形分割
-					rect1L, rect2L, rect3L, rect4L, rect5L, story, yane := pkg.DodecaDiv(newslice, neworder, newPtn, newIdx)
-					if rect1L == nil || rect2L == nil || rect3L == nil || rect4L == nil || rect5L == nil {
-						log.Println("12角形を四角形分割できない\n", id, elv, newslice)
-						poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
-						polyList = append(polyList, &poly)
-					} else {
-						// deca1Lは10角形の四角形分割プログラムに渡されて四角形分割される
-						rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: yane[0], Area: area, List: rect1L}
-						rectList = append(rectList, &rect1)
-						rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: yane[1], Area: area, List: rect2L}
-						rectList = append(rectList, &rect2)
-						rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: yane[2], Area: area, List: rect3L}
-						rectList = append(rectList, &rect3)
-						rect4 := SlopeRoof{ID: id, Elv: elv, Story: 1, Type: "kata", Area: area, List: rect4L}
-						rectList = append(rectList, &rect4)
-						rect5 := SlopeRoof{ID: id, Elv: elv, Story: 1, Type: "kata", Area: area, List: rect5L}
-						rectList = append(rectList, &rect5)
-						// log.Println("rectList=", rectList)
-					}
-					log.Println("story=", story)
-					log.Println("yane=", yane)
-
-				} else if len(newslice) == 11 {
-					// 11角形の四角形分割
-					slice1, slice2, result11 := pkg.OddPoly(newPtn, newIdx, newdeg, newslice, neworder)
-
-					// newslice の頂点数に応じて屋根を掛ける
-					num1 := len(slice1)
-					if num1 == 4 {
-						// 四角形に切妻屋根を掛ける
-						rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: slice1}
-						rectList = append(rectList, &rect0)
-
-					} else if num1 == 5 {
+					} else if len(slice1) == 5 {
 						// slice1 の内角を求め直して５角形に屋根を掛ける
 						// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
-						_, deg5, _ := pkg.TriVert(num1, slice1)
-						cord5, yane := pkg.PentaNode(deg5, slice1)
+						_, deg5, _ := pkg.TriVert(len(slice1), slice1)
 						// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
+						cord5, yane := pkg.PentaNode(deg5, slice1)
+
 						rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: yane, Area: area, List: cord5}
 						rectList = append(rectList, &rect0)
 					}
 
+					// 分割した多角形の頂点の内角を確認して分割プログラムに渡す
 					// FlatVert で内角が約180°の頂点を削除する
 					// slice2 に適用するには新しいextとdegが必要
 					num2 := len(slice2)
@@ -585,112 +809,182 @@ func SquarePoly() {
 					log.Println("newIdx=", newIdx)
 
 					// newslice の頂点数に応じて屋根を掛ける
-					if len(newslice) == 4 {
-						rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: newslice}
-						rectList = append(rectList, &rect0)
-
-					} else if len(newslice) == 5 {
-						// slice1 の内角を求め直して５角形に屋根を掛ける
-						// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
-						_, deg5, _ := pkg.TriVert(newnum, newslice)
-						// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
-						cord5, yane := pkg.PentaNode(deg5, newslice)
-
-						rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: yane, Area: area, List: cord5}
-						rectList = append(rectList, &rect0)
-
-					} else if len(newslice) == 6 {
-						_, rect1L, rect2L := pkg.HexaDiv(newslice, neworder)
-						if rect1L == nil || rect2L == nil {
-							log.Println("6角形を四角形分割できない\n", id, elv, newslice)
+					if len(newslice) == 12 {
+						// 12角形の四角形分割
+						rect1L, rect2L, rect3L, rect4L, rect5L, story, yane := pkg.DodecaDiv(newslice, neworder, newPtn, newIdx)
+						if rect1L == nil || rect2L == nil || rect3L == nil || rect4L == nil || rect5L == nil {
+							log.Println("12角形を四角形分割できない\n", id, elv, newslice)
 							poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
 							polyList = append(polyList, &poly)
 						} else {
-							rect1 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: rect1L}
-							rectList = append(rectList, &rect1)
-							rect2 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: rect2L}
-							rectList = append(rectList, &rect2)
-						}
-
-					} else if len(newslice) == 7 {
-						// ７角形を３つに分割して片流れ屋根を掛ける
-						rect1L, rect2L, rect3L, type1L, type2L, type3L, story := pkg.HeptaDiv(newPtn, newdeg, newslice, neworder)
-
-						rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: type3L, Area: area, List: rect3L}
-						rectList = append(rectList, &rect3)
-						log.Println("rect3=", rect3)
-						rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: type1L, Area: area, List: rect1L}
-						rectList = append(rectList, &rect1)
-						log.Println("rect1=", rect1)
-						rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: type2L, Area: area, List: rect2L}
-						rectList = append(rectList, &rect2)
-						log.Println("rect2=", rect2)
-
-					} else if len(newslice) == 8 {
-						_, rect1L, rect2L, rect3L, story, yane := pkg.OctaDiv(newslice, neworder, newPtn, newIdx)
-						if rect1L == nil || rect2L == nil || rect3L == nil {
-							log.Println("8角形を四角形分割できない\n", id, elv, newslice)
-							poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
-							polyList = append(polyList, &poly)
-						} else {
+							// deca1Lは10角形の四角形分割プログラムに渡されて四角形分割される
 							rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: yane[0], Area: area, List: rect1L}
 							rectList = append(rectList, &rect1)
 							rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: yane[1], Area: area, List: rect2L}
 							rectList = append(rectList, &rect2)
 							rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: yane[2], Area: area, List: rect3L}
 							rectList = append(rectList, &rect3)
+							rect4 := SlopeRoof{ID: id, Elv: elv, Story: 1, Type: "kata", Area: area, List: rect4L}
+							rectList = append(rectList, &rect4)
+							rect5 := SlopeRoof{ID: id, Elv: elv, Story: 1, Type: "kata", Area: area, List: rect5L}
+							rectList = append(rectList, &rect5)
+							// log.Println("rectList=", rectList)
 						}
+						log.Println("story=", story)
+						log.Println("yane=", yane)
+
+					} else if len(newslice) == 11 {
+						// 11角形の四角形分割
+						slice1, slice2, result11 := pkg.OddPoly(newPtn, newIdx, newdeg, newslice, neworder)
+
+						if result11 {
+							// slice1 の頂点数に応じて屋根を掛ける
+							num1 := len(slice1)
+							if num1 == 4 {
+								// 内角を確認して，内角が条件を満たさない場合は傾斜屋根を掛けない
+								chk := pkg.AnglChk(slice1)
+								if !chk {
+									rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "flat", Area: area, List: slice1}
+									rectList = append(rectList, &rect0)
+								} else if chk {
+									// 四角形に切妻屋根を掛ける
+									rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: slice1}
+									rectList = append(rectList, &rect0)
+								}
+
+							} else if num1 == 5 {
+								// slice1 の内角を求め直して５角形に屋根を掛ける
+								// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
+								_, deg5, _ := pkg.TriVert(num1, slice1)
+								// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
+								cord5, yane := pkg.PentaNode(deg5, slice1)
+
+								rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: yane, Area: area, List: cord5}
+								rectList = append(rectList, &rect0)
+							}
+
+							// FlatVert で内角が約180°の頂点を削除する
+							// slice2 に適用するには新しいextとdegが必要
+							num2 := len(slice2)
+							// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
+							extmp, newdeg, _ := pkg.TriVert(num2, slice2)
+							// FlatVert で内角が約180°の頂点を削除する
+							newnum, newslice, newext, _ := pkg.FlatVert(num2, slice2, extmp, newdeg)
+							// L点，R点の辞書を作り直す
+							_, _, neworder, newPtn, newIdx := pkg.Lexicogra(newnum, newslice, newext)
+							log.Println("newdeg=", newdeg)
+							log.Println("newnum=", newnum)
+							log.Println("newslice=", newslice)
+							log.Println("newext=", newext)
+							log.Println("neworder=", neworder)
+							log.Println("newPtn=", newPtn)
+							log.Println("newIdx=", newIdx)
+
+							// newslice の頂点数に応じて屋根を掛ける
+							if len(newslice) == 4 {
+								// 内角を確認して，内角が条件を満たさない場合は傾斜屋根を掛けない
+								chk := pkg.AnglChk(newslice)
+								if !chk {
+									rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "flat", Area: area, List: newslice}
+									rectList = append(rectList, &rect0)
+								} else if chk {
+									// 四角形に切妻屋根を掛ける
+									rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: newslice}
+									rectList = append(rectList, &rect0)
+								}
+
+							} else if len(newslice) == 5 {
+								// slice1 の内角を求め直して５角形に屋根を掛ける
+								// TriVert は３頂点から外積と内角を計算し時計回りかどうか判断する
+								_, deg5, _ := pkg.TriVert(newnum, newslice)
+								// PentaNode は５角形に屋根を掛けるために頂点座標の並びを整える
+								cord5, yane := pkg.PentaNode(deg5, newslice)
+
+								rect0 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: yane, Area: area, List: cord5}
+								rectList = append(rectList, &rect0)
+
+							} else if len(newslice) == 6 {
+								_, rect1L, rect2L := pkg.HexaDiv(newslice, neworder)
+								if rect1L == nil || rect2L == nil {
+									log.Println("6角形を四角形分割できない\n", id, elv, newslice)
+									poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
+									polyList = append(polyList, &poly)
+								} else {
+									rect1 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: rect1L}
+									rectList = append(rectList, &rect1)
+									rect2 := SlopeRoof{ID: id, Elv: elv, Story: 2, Type: "kiri", Area: area, List: rect2L}
+									rectList = append(rectList, &rect2)
+								}
+
+							} else if len(newslice) == 7 {
+								// ７角形を３つに分割して片流れ屋根を掛ける
+								rect1L, rect2L, rect3L, type1L, type2L, type3L, story, chk7 := pkg.HeptaDiv(newPtn, newdeg, newslice, neworder)
+
+								if !chk7 {
+									poly := Polygon{ID: id, Elv: elv, Area: area, List: cord2}
+									polyList = append(polyList, &poly)
+								} else if chk7 {
+									rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: type3L, Area: area, List: rect3L}
+									rectList = append(rectList, &rect3)
+									log.Println("rect3=", rect3)
+									rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: type1L, Area: area, List: rect1L}
+									rectList = append(rectList, &rect1)
+									log.Println("rect1=", rect1)
+									rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: type2L, Area: area, List: rect2L}
+									rectList = append(rectList, &rect2)
+									log.Println("rect2=", rect2)
+								}
+
+							} else if len(newslice) == 8 {
+								_, rect1L, rect2L, rect3L, story, yane := pkg.OctaDiv(newslice, neworder, newPtn, newIdx)
+								if rect1L == nil || rect2L == nil || rect3L == nil {
+									log.Println("8角形を四角形分割できない\n", id, elv, newslice)
+									poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
+									polyList = append(polyList, &poly)
+								} else {
+									rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: yane[0], Area: area, List: rect1L}
+									rectList = append(rectList, &rect1)
+									rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: yane[1], Area: area, List: rect2L}
+									rectList = append(rectList, &rect2)
+									rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: yane[2], Area: area, List: rect3L}
+									rectList = append(rectList, &rect3)
+								}
+							}
+						}
+						if !result11 {
+							// TODO:
+							slR = false
+							poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
+							polyList = append(polyList, &poly)
+						}
+
+					} else if len(newslice) == 10 {
+						rect1L, rect2L, rect3L, rect4L, story, yane := pkg.DecaDiv(newslice, neworder, newPtn, newIdx)
+						if rect1L == nil || rect2L == nil || rect3L == nil || rect4L == nil {
+							log.Println("10角形を四角形分割できない\n", id, elv, newslice)
+							poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
+							polyList = append(polyList, &poly)
+						} else {
+							// oct1Lは８角形の四角形分割プログラムに渡されて四角形分割される
+							rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: yane[0], Area: area, List: rect1L}
+							rectList = append(rectList, &rect1)
+							rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: yane[1], Area: area, List: rect2L}
+							rectList = append(rectList, &rect2)
+							rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: yane[2], Area: area, List: rect3L}
+							rectList = append(rectList, &rect3)
+							rect4 := SlopeRoof{ID: id, Elv: elv, Story: 1, Type: "kata", Area: area, List: rect4L}
+							rectList = append(rectList, &rect4)
+							// log.Println("rectList=", rectList)
+						}
+						log.Println("story=", story)
+						log.Println("yane=", yane)
 					}
-
-					// } else if num1 == 4 {
-					// 	if len(slice2) == 7 {
-					// 		// ７角形を３つに分割して片流れ屋根を掛ける
-					// 		rect1L, rect2L, rect3L, type1L, type2L, type3L, story := pkg.HeptaDiv(lrPtn, deg2, cord2, order)
-
-					// 		rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: type3L, Area: area, List: rect3L}
-					// 		rectList = append(rectList, &rect3)
-					// 		log.Println("rect3=", rect3)
-					// 		rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: type1L, Area: area, List: rect1L}
-					// 		rectList = append(rectList, &rect1)
-					// 		log.Println("rect1=", rect1)
-					// 		rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: type2L, Area: area, List: rect2L}
-					// 		rectList = append(rectList, &rect2)
-					// 		log.Println("rect2=", rect2)
-					// 	}
-
-					if result11 == false {
-						// TODO:
-						slR = false
-						poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
-						polyList = append(polyList, &poly)
-					}
-
-				} else if len(newslice) == 10 {
-					rect1L, rect2L, rect3L, rect4L, story, yane := pkg.DecaDiv(newslice, neworder, newPtn, newIdx)
-					if rect1L == nil || rect2L == nil || rect3L == nil || rect4L == nil {
-						log.Println("10角形を四角形分割できない\n", id, elv, newslice)
-						poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
-						polyList = append(polyList, &poly)
-					} else {
-						// oct1Lは８角形の四角形分割プログラムに渡されて四角形分割される
-						rect1 := SlopeRoof{ID: id, Elv: elv, Story: story[0], Type: yane[0], Area: area, List: rect1L}
-						rectList = append(rectList, &rect1)
-						rect2 := SlopeRoof{ID: id, Elv: elv, Story: story[1], Type: yane[1], Area: area, List: rect2L}
-						rectList = append(rectList, &rect2)
-						rect3 := SlopeRoof{ID: id, Elv: elv, Story: story[2], Type: yane[2], Area: area, List: rect3L}
-						rectList = append(rectList, &rect3)
-						rect4 := SlopeRoof{ID: id, Elv: elv, Story: 1, Type: "kata", Area: area, List: rect4L}
-						rectList = append(rectList, &rect4)
-						// log.Println("rectList=", rectList)
-					}
-					log.Println("story=", story)
-					log.Println("yane=", yane)
 				}
 
-				if result14 == false {
+				if !result14 {
 					// TODO:
 					slR = false
-					poly := Polygon{ID: id, Elv: elv, Area: area, List: newslice}
+					poly := Polygon{ID: id, Elv: elv, Area: area, List: cord2}
 					polyList = append(polyList, &poly)
 				}
 
@@ -707,9 +1001,10 @@ func SquarePoly() {
 				poly := Polygon{ID: id, Elv: elv, Area: area, List: cord2}
 				polyList = append(polyList, &poly)
 			}
-		} else if slR == false {
+
+		} else if !slR {
 			// 建物本体と屋根を分離してモデリングする
-			poly := Polygon{ID: id, Elv: elv, Area: area, List: cord2}
+			poly := Polygon{ID: id, Elv: elv, Area: area, List: cord1}
 			polyList = append(polyList, &poly)
 			// 内角条件を満たさない頂点を無視して屋根を掛ける
 			// TODO:
@@ -783,7 +1078,7 @@ func SquarePoly() {
 	if err := rDecoder.Decode(&rectList2); err != nil {
 		log.Fatal("decode error:", err)
 	}
-	log.Println("rectList\n")
+	log.Println("rectList")
 
 	for index, v := range rectList2 {
 		log.Println(index, ":", v.Elv, v.ID, v.List)
@@ -802,7 +1097,7 @@ func SquarePoly() {
 	if erp := pDecoder.Decode(&polyList2); erp != nil {
 		log.Fatal("decode error:", erp)
 	}
-	log.Println("polyList\n")
+	log.Println("polyList")
 
 	for index, v := range polyList2 {
 		log.Println(index, ":", v.Elv, v.ID, v.List)

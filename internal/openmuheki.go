@@ -36,12 +36,12 @@ func OpenMuheki() (mList []*MuhekiBuil, lm int) {
 		jStr = strings.TrimRight(jStr, ",")
 
 		// MultiPolygonをLineStringに置換する
-		if strings.Contains(jStr, "[ [ [ [") == true {
+		if strings.Contains(jStr, "[ [ [ [") {
 			jStr = strings.Replace(jStr, "[ [ [ [", "[ [", 1)
 			jStr = strings.Replace(jStr, "] ] ] ]", "] ]", 1)
 		}
 		// PolygonをLineStringに置換する
-		if strings.Contains(jStr, "[ [ [") == true {
+		if strings.Contains(jStr, "[ [ [") {
 			jStr = strings.Replace(jStr, "[ [ [", "[ [", 1)
 			jStr = strings.Replace(jStr, "] ] ]", "] ]", 1)
 		}

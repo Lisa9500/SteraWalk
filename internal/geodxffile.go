@@ -7,7 +7,7 @@ import (
 )
 
 // TerrDXFはDXF形式で地形モデルを作成する
-func TerrDXF(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64, x_max, x_min, y_max, y_min, z_max, z_min float64) {
+func TerrDXF(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int, x_max, x_min, y_max, y_min, z_max, z_min float64) {
 	// DXF形式で出力するためのファイルを開く
 	f, err := os.Create("C:/data/outputgeo.dxf")
 	// f, err := os.Create("outputgeo.dxf")
@@ -35,8 +35,8 @@ func TerrDXF(x_matrix, y_matrix, z_matrix [][]float64, x_dot, y_dot int64, x_max
 	f.WriteString("ENTITIES\n")
 
 	// 点（X座標，Y座標，Z座標）
-	for i := int64(0); i < row; i++ {
-		for j := int64(0); j < col; j++ {
+	for i := 0; i < row; i++ {
+		for j := 0; j < col; j++ {
 			// 左下三角形の出力
 			// 3DFACEのセクション毎に3頂点の座標を出力する
 			f.WriteString("  0\n")

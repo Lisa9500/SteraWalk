@@ -261,7 +261,7 @@ func KataYane2(list [][]float64, toph, hisashi, keraba, incline,
 	sh2 := (-vec2[0]*(x2-xo2)-vec2[1]*(y2-yo2))/vec2[2] + mbt
 	log.Println("sh2=", sh2)
 
-	// (xo3, yo3, nbt),(xo4, yo4, nbt),(xo3, yo3, nbt)を通る平面の式
+	// (xo3, yo3, nbt),(xo4, yo4, nbt),(xo2, yo2, mbt)を通る平面の式
 	p31 := []float64{xo3, yo3, nbt}
 	p32 := []float64{xo4, yo4, nbt}
 	p33 := []float64{xo2, yo2, mbt}
@@ -270,7 +270,7 @@ func KataYane2(list [][]float64, toph, hisashi, keraba, incline,
 	vec3 := pkg.NorVec(p31, p32, p33)
 	log.Println("vec=", vec3)
 
-	sh3 := (-vec3[0]*(x3-xo2)-vec3[1]*(y3-yo2))/vec3[2] + mbt
+	sh3 := (-vec3[0]*(x3-xo2)-vec3[1]*(y3-yo2))/vec3[2] + nbt
 	log.Println("sh3=", sh3)
 
 	yanepoly = append(yanepoly, x1, y1, sh0) // 側面・三角形２

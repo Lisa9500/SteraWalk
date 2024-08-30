@@ -54,7 +54,7 @@ func DivideLine(fn string) error {
 		if er == io.EOF && len(row) == 0 {
 			break
 		}
-		if strings.Contains(row, "普通建物") == true {
+		if strings.Contains(row, "普通建物") {
 			log.Println("普通建物")
 			_, er = w1.WriteString(row)
 			if er != nil {
@@ -62,7 +62,7 @@ func DivideLine(fn string) error {
 			}
 			w1.Flush()
 		}
-		if strings.Contains(row, "堅ろう建物") == true {
+		if strings.Contains(row, "堅ろう建物") {
 			log.Println("堅ろう建物")
 			_, er = w2.WriteString(row)
 			if er != nil {
@@ -70,7 +70,7 @@ func DivideLine(fn string) error {
 			}
 			w2.Flush()
 		}
-		if strings.Contains(row, "無壁舎") == true {
+		if strings.Contains(row, "無壁舎") {
 			log.Println("無壁舎")
 			_, er = w3.WriteString(row)
 			if er != nil {

@@ -33,7 +33,7 @@ func TriMeshDiv() {
 	log.Println(strings.Contains(lrjoin, str1))
 
 	// LR並びからLRRLを探して文字列位置を返す
-	for strings.Contains(lrjoin, str1) == true {
+	for strings.Contains(lrjoin, str1) {
 		num := len(lrjoin)
 		log.Println(strings.Index(lrjoin, str1))
 		log.Println("LRRL=", strings.Index(lrjoin, str1))
@@ -84,7 +84,7 @@ func TriMeshDiv() {
 
 		cords = newpoly
 
-		if strings.Contains(lrjoin, str1) == false {
+		if !strings.Contains(lrjoin, str1) {
 			break
 		}
 	}
@@ -94,7 +94,7 @@ func TriMeshDiv() {
 	log.Println(strings.Index(lrjoin, str2))
 
 	// LR並びからLRLを探して文字列位置を返す
-	for strings.Contains(lrjoin, str2) == true {
+	for strings.Contains(lrjoin, str2) {
 		num := len(lrjoin)
 		log.Println(strings.Index(lrjoin, str2))
 		log.Println("LRL=", strings.Index(lrjoin, str2))
@@ -134,7 +134,7 @@ func TriMeshDiv() {
 
 		cords = newpoly
 
-		if strings.Contains(lrjoin, str2) == false {
+		if !strings.Contains(lrjoin, str2) {
 			break
 		}
 	}
@@ -144,7 +144,7 @@ func TriMeshDiv() {
 	log.Println(strings.Contains(lrjoin, str5))
 
 	// LR並びからLRRLを探して文字列位置を返す
-	for strings.Contains(lrjoin, str5) == true {
+	for strings.Contains(lrjoin, str5) {
 		num := len(lrjoin)
 		log.Println(strings.Index(lrjoin, str5))
 		log.Println("LRRRL=", strings.Index(lrjoin, str5))
@@ -206,7 +206,7 @@ func TriMeshDiv() {
 
 		cords = newpoly
 
-		if strings.Contains(lrjoin, str5) == false {
+		if !strings.Contains(lrjoin, str5) {
 			break
 		}
 	}
@@ -216,7 +216,7 @@ func TriMeshDiv() {
 	log.Println(strings.Index(lrjoin, str3))
 
 	// LR並びからLLRRを探して文字列位置を返す
-	for strings.Contains(lrjoin, str3) == true {
+	for strings.Contains(lrjoin, str3) {
 		num := len(lrjoin)
 		if num < 5 {
 			break
@@ -261,7 +261,7 @@ func TriMeshDiv() {
 
 		cords = newpoly
 
-		if strings.Contains(lrjoin, str3) == false {
+		if !strings.Contains(lrjoin, str3) {
 			break
 		}
 	}
@@ -271,7 +271,7 @@ func TriMeshDiv() {
 	log.Println(strings.Index(lrjoin, str4))
 
 	// LR並びからLRRを探して文字列位置を返す
-	for strings.Contains(lrjoin, str4) == true {
+	for strings.Contains(lrjoin, str4) {
 		num := len(lrjoin)
 		if num < 5 {
 			break
@@ -315,13 +315,13 @@ func TriMeshDiv() {
 
 		cords = newpoly
 
-		if strings.Contains(lrjoin, str4) == false {
+		if !strings.Contains(lrjoin, str4) {
 			break
 		}
 	}
 
 	// L点を含む四角形をL点を中心に分割する
-	if strings.Contains(lrjoin, "L") == true && len(lrjoin) == 4 {
+	if strings.Contains(lrjoin, "L") && len(lrjoin) == 4 {
 		// 分離する三角形の頂点番号
 		n := strings.Index(lrjoin, "L")
 		idx := lrIdx[n]
@@ -336,7 +336,7 @@ func TriMeshDiv() {
 	}
 
 	// R点のみで構成される多角形を扇形分割する
-	if strings.Contains(lrjoin, "L") == false {
+	if !strings.Contains(lrjoin, "L") {
 		vnum := len(lrjoin)
 		for i := 0; i < vnum-2; i++ {
 			// tr_61 := 0

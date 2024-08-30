@@ -633,10 +633,10 @@ func BuildDAE() {
 			// 切妻屋根の面数／(2x2+3)×2+2=16
 			pm_cnt = pm_cnt + ((4+3)*2 + 2)
 		} else if rectList[i-1].Type == "yose" {
-			// 寄棟屋根の頂点数／(3x2+3x2x2)x2+3x2x4=48
+			// 寄棟屋根の頂点数／(3x2+3x2x2)x2+3x2x4=60
 			v_num = v_num + ((3*2+3*2*2)*2 + 3*2*4)
-			// 寄棟屋根の頂点データ数／(3x2+3x2x2+3x2x4)x3=126
-			cnt = cnt + (3*2+3*2*2+3*2*4)*3
+			// 寄棟屋根の頂点データ数／((3x2+3x2x2)x2+3x2x4)x3=180
+			cnt = cnt + ((3*2+3*2*2)*2+3*2*4)*3
 			// 寄棟屋根の面数／(2+2x2)x2+2x4=20
 			pm_cnt = pm_cnt + ((2+2*2)*2 + 2*4)
 		} else if rectList[i-1].Type == "kata" {
@@ -765,10 +765,10 @@ func BuildDAE() {
 
 		} else if rectList[i-1].Type == "heptri" {
 			// 軒庇の出とケラバの厚さを設定する
-			hisashi := 0.45
-			keraba := 0.1
-			incline := 0.2 // ２寸勾配
-			yaneatu := 0.15
+			hisashi := 0.60
+			keraba := 0.30
+			incline := 0.3
+			yaneatu := 0.075
 
 			// 7角形屋根の頂点の法線ベクトルをリストにテキスト化して書き出す
 			yanetxt, yanenor, tripts = TriYane(rectList[i-1].List, toph, hisashi, keraba, incline, yaneatu)
@@ -776,40 +776,40 @@ func BuildDAE() {
 
 		} else if rectList[i-1].Type == "kata1" {
 			// 軒庇の出とケラバの厚さを設定する
-			hisashi := 0.45
-			keraba := 0.15
-			incline := 0.2 // ２寸勾配
-			yaneatu := 0.15
+			hisashi := 0.60
+			keraba := 0.30
+			incline := 0.3
+			yaneatu := 0.075
 
 			// 片流れ屋根の頂点の法線ベクトルをリストにテキスト化して書き出す
 			yanetxt, yanenor = KataYane1(rectList[i-1].List, toph, hisashi, keraba, incline, yaneatu, tripts)
 
 		} else if rectList[i-1].Type == "kata2" {
 			// 軒庇の出とケラバの厚さを設定する
-			hisashi := 0.45
-			keraba := 0.15
-			incline := 0.2 // ２寸勾配
-			yaneatu := 0.15
+			hisashi := 0.60
+			keraba := 0.30
+			incline := 0.3
+			yaneatu := 0.075
 
 			// 片流れ屋根の頂点の法線ベクトルをリストにテキスト化して書き出す
 			yanetxt, yanenor = KataYane2(rectList[i-1].List, toph, hisashi, keraba, incline, yaneatu, tripts)
 
 		} else if rectList[i-1].Type == "penta" {
 			// 軒庇の出とケラバの厚さを設定する
-			hisashi := 0.45
+			hisashi := 0.60
 			keraba := hisashi
-			incline := 0.4 // ４寸勾配
-			yaneatu := 0.15
+			incline := 0.3
+			yaneatu := 0.075
 
 			// ５角形屋根の頂点の法線ベクトルをリストにテキスト化して書き出す
 			yanetxt, yanenor = PentaYane(rectList[i-1].List, toph, hisashi, keraba, incline, yaneatu)
 
 		} else if rectList[i-1].Type == "kiri5" {
 			// 軒庇の出とケラバの厚さを設定する
-			hisashi := 0.45
-			keraba := 0.15
-			incline := 0.4 // ４寸勾配
-			yaneatu := 0.15
+			hisashi := 0.60
+			keraba := 0.30
+			incline := 0.45
+			yaneatu := 0.11
 
 			// ５角形屋根の切妻屋根の頂点の法線ベクトルをリストにテキスト化して書き出す
 			yanetxt, yanenor = Kiri5Yane(rectList[i-1].List, toph, hisashi, keraba, incline, yaneatu)
@@ -925,12 +925,12 @@ func BuildDAE() {
 	}
 
 	// 堅ろう建物の処理
-	for k, _ := range kList {
+	for k := range kList {
 		i := k + 1
 
 		// 頂点数
 		vcnt := len(kList[i-1].Cords)
-		log.Println("vertex=", vcnt)
+		// log.Println("vertex=", vcnt)
 
 		// 建ぺい率・容積率の設定
 		bcr := kList[i-1].Build
@@ -938,9 +938,9 @@ func BuildDAE() {
 
 		// 用途地域番号の読み込み
 		youto := kList[i-1].Area
-		// log.Println("youto=", youto)
+		log.Println("youto=", youto)
 		anum := AreaNum(youto)
-		// log.Println("anum=", anum)
+		log.Println("anum=", anum)
 		areanum = append(areanum, anum)
 
 		// 建物階数の定義
@@ -1020,12 +1020,12 @@ func BuildDAE() {
 	}
 
 	// 無壁舎建物の処理
-	for m, _ := range mList {
+	for m := range mList {
 		i := m + 1
 
 		// 頂点数
 		vcnt := len(mList[i-1].Cords)
-		log.Println("vertex=", vcnt)
+		// log.Println("vertex=", vcnt)
 
 		// 建物階数の定義
 		story := 1
