@@ -16,9 +16,6 @@ func CalcTheta(vecAX, vecAY, vecBX, vecBY, vecA, vecB float64) (theta float64) {
 	// 角度を求める
 	theta = (math.Acos(cosTheta)) * 180 / math.Pi
 	// log.Println("角度=", theta)
-	if theta < 0 {
-		// TODO:
-	}
 
 	return theta
 }

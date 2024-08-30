@@ -71,7 +71,7 @@ func OddPoly(lrPtn []string, lrIdx []int, deg2 []float64, cord2 [][]float64, ord
 					log.Println("idx4=", idx4)
 					// １つ目の"LRRRL"と内角の和を比較
 					for i := 1; i < 4; i++ {
-						degsum2 = degsum2 + deg2[idx4+i]
+						degsum2 = degsum2 + deg2[(idx4+i)%nod]
 					}
 					if degsum1 > degsum2 {
 						idx = idx0
@@ -104,6 +104,45 @@ func OddPoly(lrPtn []string, lrIdx []int, deg2 []float64, cord2 [][]float64, ord
 			log.Println("slice2=", slice2)
 		} else if idx > (nod - 5) {
 			slice2 = cord2[idx-(nod-4) : idx]
+			log.Println("slice2=", slice2)
+		}
+
+	} else if strings.Contains(lrtxt, "LRRR") {
+		// 右端の"LRRR"と左端の"L"で"LRRRL"が１つ
+		ptn3 := strings.LastIndex(lrtxt, "LRRR")
+		log.Println("ptn3=", ptn3)
+		if ptn3 == (nod - 4) {
+			log.Println("lrtxt include LRRR")
+			idx3 := lrIdx[ptn3]
+			log.Println("idx3=", idx3)
+			idx = idx3
+		} else {
+			// TODO:
+			result = false
+			return
+		}
+
+		log.Println("idx=", idx)
+		// ５角形を分割
+		if idx < (nod - 4) {
+			slice1 = cord2[idx : idx+5]
+			log.Println("slice1=", slice1)
+		} else if idx > (nod - 5) {
+			slice11 := cord2[idx:]
+			slice12 := cord2[:idx-(nod-5)]
+			slice1 = append(slice1, slice11...)
+			slice1 = append(slice1, slice12...)
+			log.Println("slice1=", slice1)
+		}
+		// 残りの多角形を分割
+		if idx < (nod - 4) {
+			slice21 := cord2[(idx-(nod-4)+nod)%nod:]
+			slice22 := cord2[:idx+1]
+			slice2 = append(slice2, slice21...)
+			slice2 = append(slice2, slice22...)
+			log.Println("slice2=", slice2)
+		} else if idx > (nod - 5) {
+			slice2 = cord2[idx-(nod-4) : idx+1]
 			log.Println("slice2=", slice2)
 		}
 
@@ -147,7 +186,7 @@ func OddPoly(lrPtn []string, lrIdx []int, deg2 []float64, cord2 [][]float64, ord
 			idx0 := lrIdx[ptn0]
 			log.Println("idx0=", idx0)
 			for i := 1; i < 3; i++ {
-				degsum1 = degsum1 + deg2[idx0+i]
+				degsum1 = degsum1 + deg2[(idx0+i)%nod]
 			}
 			idx = idx0
 			// 右端の"LRRR"と左端の"L"で"LRRRL"が１つ
@@ -160,7 +199,7 @@ func OddPoly(lrPtn []string, lrIdx []int, deg2 []float64, cord2 [][]float64, ord
 					log.Println("idx4=", idx4)
 					// １つ目の"LRRRL"と内角の和を比較
 					for i := 1; i < 3; i++ {
-						degsum2 = degsum2 + deg2[idx4+i]
+						degsum2 = degsum2 + deg2[(idx4+i)%nod]
 					}
 					if degsum1 > degsum2 {
 						idx = idx0
@@ -196,50 +235,15 @@ func OddPoly(lrPtn []string, lrIdx []int, deg2 []float64, cord2 [][]float64, ord
 			log.Println("slice2=", slice2)
 		}
 
-	} else if strings.Contains(lrtxt, "LRRR") {
-		// 右端の"LRRR"と左端の"L"で"LRRRL"が１つ
-		ptn3 := strings.LastIndex(lrtxt, "LRRR")
-		log.Println("ptn3=", ptn3)
-		if ptn3 == (nod - 4) {
-			log.Println("lrtxt include LRRR")
-			idx3 := lrIdx[ptn3]
-			log.Println("idx3=", idx3)
-			idx = idx3
-		} else {
-			// TODO:
-			result = false
-			return
-		}
-
-		log.Println("idx=", idx)
-		// ５角形を分割
-		if idx < (nod - 4) {
-			slice1 = cord2[idx : idx+5]
-			log.Println("slice1=", slice1)
-		} else if idx > (nod - 5) {
-			slice11 := cord2[idx:]
-			slice12 := cord2[:idx-(nod-5)]
-			slice1 = append(slice1, slice11...)
-			slice1 = append(slice1, slice12...)
-			log.Println("slice1=", slice1)
-		}
-		// 残りの多角形を分割
-		if idx < (nod - 4) {
-			slice21 := cord2[(idx-(nod-4)+nod)%nod:]
-			slice22 := cord2[:idx+1]
-			slice2 = append(slice2, slice21...)
-			slice2 = append(slice2, slice22...)
-			log.Println("slice2=", slice2)
-		} else if idx > (nod - 5) {
-			slice2 = cord2[idx-(nod-4) : idx+1]
-			log.Println("slice2=", slice2)
-		}
-
 	} else {
 		// TODO:
 		result = false
 	}
-	log.Println("result=", result)
 
+	extchk := ExtChk(len(slice1), slice1)
+	if !extchk {
+		result = false
+	}
+	log.Println("result=", result)
 	return slice1, slice2, result
 }

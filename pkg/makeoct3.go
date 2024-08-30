@@ -1,6 +1,9 @@
 package pkg
 
-import "log"
+import (
+	"log"
+	"math"
+)
 
 // MakeOct3 は凹型1の８角形を３つの４角形に分割する
 func MakeOct3(XY [][]float64, order map[string]int) (cord [][]float64,
@@ -31,10 +34,14 @@ func MakeOct3(XY [][]float64, order map[string]int) (cord [][]float64,
 	int1aX, int1aY, theta := OrthoAngle(chokuCord1a, taikoCord1a)
 	log.Println("int1aX=", int1aX)
 	log.Println("int1aY=", int1aY)
+	// 交点1aまでの距離
+	var divLine1a float64
 	// 交差角度が制限範囲内でない場合は処理を中断する
 	if theta < 45 || theta > 135 {
 		log.Println("theta=", theta)
-		// return
+		divLine1a = math.Inf(1)
+	} else {
+		divLine1a = DistVerts(XY[num1][0], XY[num1][1], int1aX, int1aY)
 	}
 	// もう一方の直交する辺は．L点と次の点で結ばれる線分
 	// 直交する辺の座標ペア
@@ -53,10 +60,14 @@ func MakeOct3(XY [][]float64, order map[string]int) (cord [][]float64,
 	int1bX, int1bY, theta := OrthoAngle(chokuCord1b, taikoCord1b)
 	log.Println("int1bX=", int1bX)
 	log.Println("int1bY=", int1bY)
+	// 交点1bまでの距離
+	var divLine1b float64
 	// 交差角度が制限範囲内でない場合は処理を中断する
 	if theta < 45 || theta > 135 {
 		log.Println("theta=", theta)
-		// return
+		divLine1b = math.Inf(1)
+	} else {
+		divLine1b = DistVerts(XY[num1][0], XY[num1][1], int1bX, int1bY)
 	}
 
 	num2 := order["L2"]
@@ -77,10 +88,14 @@ func MakeOct3(XY [][]float64, order map[string]int) (cord [][]float64,
 	int2aX, int2aY, theta2 := OrthoAngle(chokuXYa, taikoXYa)
 	log.Println("int2aX=", int2aX)
 	log.Println("int2aY=", int2aY)
+	// 交点2aまでの距離
+	var divLine2a float64
 	// 交差角度が制限範囲内でない場合は処理を中断する
 	if theta2 < 45 || theta2 > 135 {
 		log.Println("theta=", theta)
-		// return
+		divLine2a = math.Inf(1)
+	} else {
+		divLine2a = DistVerts(XY[num2][0], XY[num2][1], int2aX, int2aY)
 	}
 	// もう一方の直交する辺は．L2点と次の点で結ばれる線分
 	//  直交する辺の座標ペア
@@ -99,10 +114,14 @@ func MakeOct3(XY [][]float64, order map[string]int) (cord [][]float64,
 	int2bX, int2bY, theta2 := OrthoAngle(chokuXYb, taikoXYb)
 	log.Println("int2bX=", int2bX)
 	log.Println("int2bY=", int2bY)
+	// 交点2bまでの距離
+	var divLine2b float64
 	// 交差角度が制限範囲内でない場合は処理を中断する
 	if theta2 < 45 || theta2 > 135 {
 		log.Println("theta=", theta)
-		// return
+		divLine2b = math.Inf(1)
+	} else {
+		divLine2b = DistVerts(XY[num2][0], XY[num2][1], int2bX, int2bY)
 	}
 
 	// 四角形の頂点のリストを３つ用意する．
@@ -111,15 +130,6 @@ func MakeOct3(XY [][]float64, order map[string]int) (cord [][]float64,
 	var rect3name []string
 
 	// L点から対向する二辺までの距離を比較する
-	// 交点1aまでの距離
-	divLine1a := DistVerts(XY[num1][0], XY[num1][1], int1aX, int1aY)
-	// 交点1bまでの距離
-	divLine1b := DistVerts(XY[num1][0], XY[num1][1], int1bX, int1bY)
-	// 交点2aまでの距離
-	divLine2a := DistVerts(XY[num2][0], XY[num2][1], int2aX, int2aY)
-	// 交点2bまでの距離
-	divLine2b := DistVerts(XY[num2][0], XY[num2][1], int2bX, int2bY)
-
 	// 距離の短い方の線分を１番目の分割線とする
 	if divLine1a > divLine1b {
 		log.Println("分割線はdivLine1b")

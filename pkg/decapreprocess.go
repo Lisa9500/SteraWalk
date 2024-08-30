@@ -80,15 +80,15 @@ func DecaPrepro(num int, XY [][]float64, nod int,
 	rectA := [][]float64{XY[num], XY[(num+1)%nod], XY[(num+2)%nod], XY[(num+3)%nod]}
 
 	chkLa1 := ChkLinc(rectA, L1xy)
-	if chkLa1 == false {
+	if !chkLa1 {
 		log.Println("点L1が分割した四角形の中に含まれる")
 	}
 	chkLa2 := ChkLinc(rectA, L2xy)
-	if chkLa2 == false {
+	if !chkLa2 {
 		log.Println("点L2が分割した四角形の中に含まれる")
 	}
 	var areaAdis float64
-	if chkLa1 == true && chkLa2 == true {
+	if chkLa1 && chkLa2 {
 		// 交点aから隣り合うR点までの最短距離を求める
 		// 交点aと１つ前のR点までの距離
 		// R2点の座標　XY[(num+2)%6][0]，XY[(num+2)%6][1]
@@ -147,15 +147,15 @@ func DecaPrepro(num int, XY [][]float64, nod int,
 	rectB := [][]float64{XY[num], XY[(num-3+nod)%nod], XY[(num-2+nod)%nod], XY[(num-1+nod)%nod]}
 
 	chkLb1 := ChkLinc(rectB, L1xy)
-	if chkLb1 == false {
+	if !chkLb1 {
 		log.Println("点L1が分割した四角形の中に含まれる")
 	}
 	chkLb2 := ChkLinc(rectB, L2xy)
-	if chkLb2 == false {
+	if !chkLb2 {
 		log.Println("点L2が分割した四角形の中に含まれる")
 	}
 	var areaBdis float64
-	if chkLb1 == true && chkLb2 == true {
+	if chkLb1 && chkLb2 {
 		// 交点bから隣り合うR点までの最短距離を求める
 		// 交点bと１つ前のR点までの距離
 		// R5点の座標　XY[(num+3)%6][0]，XY[(num+3)%6][1]

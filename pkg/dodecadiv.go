@@ -891,10 +891,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 			// R5点，R6点，R7点を除外する
 			log.Println("deca1name", deca1name)
 			log.Println("deca1L=", deca1L)
-		} else if areaTag == "areaB" {
-			// areaBはareaAより必ず小さい
-			// TODO:
 		}
+		// areaBはareaAより必ず小さい
 
 	// ２－(11)
 	case "LLRRLRLRRRRR", "LRRLRLRRRRRL", "LRLRRRRRLLRR", "LRRRRRLLRRLR":
@@ -1112,10 +1110,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 			// R5点，R6点，R7点を除外する
 			log.Println("deca1name", deca1name)
 			log.Println("deca1L=", deca1L)
-		} else if areaTag == "areaB" {
-			// areaBはareaAより必ず小さい
-			// TODO:
 		}
+		// areaBはareaAより必ず小さい
 
 	// ２－(16)
 	case "LLRRRLRLRRRR", "LRRRLRLRRRRL", "LRLRRRRLLRRR", "LRRRRLLRRRLR":
@@ -1478,10 +1474,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 			// L4点，R7点，R8点を除外する
 			log.Println("deca1name", deca1name)
 			log.Println("deca1L=", deca1L)
-		} else if areaTag == "areaB" {
-			// areaBは成立しない
-			// TODO:
 		}
+		// areaBは成立しない
 
 	// ２－(24)
 	case "LLRRRRRLRRLR", "LRRRRRLRRLRL", "LRRLRLLRRRRR", "LRLLRRRRRLRR":
@@ -1551,10 +1545,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 			// R4点，R5点，R6点を除外する
 			log.Println("deca1name", deca1name)
 			log.Println("deca1L=", deca1L)
-		} else if areaTag == "areaB" {
-			// areaBはareaAより必ず小さい
-			// TODO:
 		}
+		// areaBはareaAより必ず小さい
 
 	// ３－(1)
 	case "LLLRLRRRRRRR", "LLRLRRRRRRRL", "LRLRRRRRRRLL", "LRRRRRRRLLLR":
@@ -1675,10 +1667,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 			// R6点，R7点，R8点を除外する
 			log.Println("deca1name", deca1name)
 			log.Println("deca1L=", deca1L)
-		} else if areaTag == "areaB" {
-			// areaBはareaAより必ず小さい
-			// TODO:
 		}
+		// areaBはareaAより必ず小さい
 
 	// ３－(4)
 	case "LLLRRRRLRRRR", "LLRRRRLRRRRL", "LRRRRLRRRRLL", "LRRRRLLLRRRR":
@@ -1713,10 +1703,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 			// R6点，R7点，R8点を除外する
 			log.Println("deca1name", deca1name)
 			log.Println("deca1L=", deca1L)
-		} else if areaTag == "areaB" {
-			// areaBはareaAより必ず小さい
-			// TODO:
 		}
+		// areaBはareaAより必ず小さい
 
 	// ３－(5)
 	case "LLLRRRRRLRRR", "LLRRRRRLRRRL", "LRRRRRLRRRLL", "LRRRLLLRRRRR":
@@ -1842,10 +1830,8 @@ func DodecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 			// R5点，R6点，R7点を除外する
 			log.Println("deca1name", deca1name)
 			log.Println("deca1L=", deca1L)
-		} else if areaTag == "areaB" {
-			// areaBはareaAより必ず小さい
-			// TODO:
 		}
+		// areaBはareaAより必ず小さい
 
 	// ４－(1)
 	case "LLLLRRRRRRRR", "LLLRRRRRRRRL", "LLRRRRRRRRLL", "LRRRRRRRRLLL":

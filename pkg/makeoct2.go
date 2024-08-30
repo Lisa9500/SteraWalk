@@ -12,6 +12,7 @@ func MakeOct2(XY [][]float64, order map[string]int) (cord [][]float64,
 		// TODO:8頂点でない多角形は，三角メッシュ分割
 		return
 	}
+
 	num1 := order["L1"]
 	// log.Println("num1=", num1)
 	// 直交する辺は．L1点と1つ前の点で結ばれる線分
@@ -34,7 +35,12 @@ func MakeOct2(XY [][]float64, order map[string]int) (cord [][]float64,
 	// 交差角度が制限範囲内でない場合は処理を中断する
 	if theta < 45 || theta > 135 {
 		log.Println("theta=", theta)
-		// return
+		return
+	}
+	lnchk1 := PosLine2(chokuCord1, taikoCord1)
+	if lnchk1 > 0 {
+		log.Println("lnchk1=", lnchk1)
+		return
 	}
 
 	num2 := order["L2"]
@@ -58,7 +64,12 @@ func MakeOct2(XY [][]float64, order map[string]int) (cord [][]float64,
 	// 交差角度が制限範囲内でない場合は処理を中断する
 	if theta2 < 45 || theta2 > 135 {
 		log.Println("theta=", theta)
-		// return
+		return
+	}
+	lnchk2 := PosLine2(chokuXY, taikoXY)
+	if lnchk2 > 0 {
+		log.Println("lnchk2=", lnchk2)
+		return
 	}
 
 	// 分割点はD1点（交点１）

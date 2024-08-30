@@ -34,11 +34,16 @@ func MakeOct6(XY [][]float64, order map[string]int) (cord [][]float64,
 	taikoCord1a[1] = XY[num1P3a]
 	// 直交する直線1aと対向する辺との直交条件を確認する
 	int1aX, int1aY, theta := OrthoAngle(chokuCord1a, taikoCord1a)
+	// 交点1aまでの距離
+	var divLine1a float64
+	// 交点が対向する辺の上にあるか確認する
+	chk1a := PosLine2(chokuCord1a, taikoCord1a)
 	// 交差角度が制限範囲内でない場合は処理を中断する
 	if theta < 45 || theta > 135 {
 		log.Println("theta=", theta)
-		// return
+		chk1a = math.Inf(1)
 	}
+
 	// もう一方の直交する辺は．L点と次の点で結ばれる線分
 	// 直交する辺の座標ペア
 	chokuCord1b := make([][]float64, 2)
@@ -56,10 +61,14 @@ func MakeOct6(XY [][]float64, order map[string]int) (cord [][]float64,
 	taikoCord1b[1] = XY[num1N6b]
 	// 直交する直線1bと対向する辺との直交条件を確認する
 	int1bX, int1bY, theta := OrthoAngle(chokuCord1b, taikoCord1b)
+	// 交点1bまでの距離
+	var divLine1b float64
+	// 交点が対向する辺の上にあるか確認する
+	chk1b := PosLine2(chokuCord1b, taikoCord1b)
 	// 交差角度が制限範囲内でない場合は処理を中断する
 	if theta < 45 || theta > 135 {
 		log.Println("theta=", theta)
-		// return
+		chk1b = math.Inf(1)
 	}
 
 	num2 := order["L2"]
@@ -80,11 +89,16 @@ func MakeOct6(XY [][]float64, order map[string]int) (cord [][]float64,
 	taikoXYa[1] = XY[num2P3a]
 	// 直交する直線2aと対向する辺との直交条件を確認する
 	int2aX, int2aY, theta2 := OrthoAngle(chokuXYa, taikoXYa)
+	// 交点2aまでの距離
+	var divLine2a float64
+	// 交点が対向する辺の上にあるか確認する
+	chk2a := PosLine2(chokuXYa, taikoXYa)
 	// 交差角度が制限範囲内でない場合は処理を中断する
 	if theta2 < 45 || theta2 > 135 {
 		log.Println("theta=", theta)
-		// return
+		chk2a = math.Inf(1)
 	}
+
 	// もう一方の直交する辺は．L2点と次の点で結ばれる線分
 	//  直交する辺の座標ペア
 	chokuXYb := make([][]float64, 2)
@@ -102,10 +116,14 @@ func MakeOct6(XY [][]float64, order map[string]int) (cord [][]float64,
 	taikoXYb[1] = XY[num2N6b]
 	// 直交する直線2bと対向する辺との直交条件を確認する
 	int2bX, int2bY, theta2 := OrthoAngle(chokuXYb, taikoXYb)
+	// 交点2bまでの距離
+	var divLine2b float64
+	// 交点が対向する辺の上にあるか確認する
+	chk2b := PosLine2(chokuXYb, taikoXYb)
 	// 交差角度が制限範囲内でない場合は処理を中断する
 	if theta2 < 45 || theta2 > 135 {
 		log.Println("theta=", theta)
-		// return
+		chk2b = math.Inf(1)
 	}
 
 	// 四角形の頂点のリストを３つ用意する．
@@ -113,51 +131,33 @@ func MakeOct6(XY [][]float64, order map[string]int) (cord [][]float64,
 	var rect2name []string
 	var rect3name []string
 
-	// L点から対向する二辺までの距離を比較する
-	// 交点1aまでの距離
-	divLine1a := DistVerts(XY[num1][0], XY[num1][1], int1aX, int1aY)
-	log.Println("divLine1a=", divLine1a)
-	// 交点1bが L2-R5上にあるかチェックする
-	t1b := PosLine(taikoCord1b[1][0], int1bX, taikoCord1b[1][1], int1bY, taikoCord1b[0][1], taikoCord1b[0][0])
-	log.Println("t1b=", t1b)
-
-	var divLine1b float64
-	// if (taikoCord1b[0][0] < int1bX && int1bX < taikoCord1b[1][0]) || (taikoCord1b[0][0] > int1bX && int1bX > taikoCord1b[1][0]) {
-	if (taikoCord1b[0][0] < int1bX && int1bX < taikoCord1b[1][0]) || (taikoCord1b[0][0] > int1bX && int1bX > taikoCord1b[1][0]) {
-		if (taikoCord1b[0][1] < int1bY && int1bY < taikoCord1b[1][1]) || (taikoCord1b[0][1] > int1bY && int1bY > taikoCord1b[1][1]) {
-			if (int1bY*(taikoCord1b[0][0]-taikoCord1b[1][0]))+(taikoCord1b[0][1]*(taikoCord1b[1][0]-int1bX))+(taikoCord1b[1][1]*(int1bX-taikoCord1b[0][0])) == 0 {
-				// 交点1bまでの距離
-				divLine1b = DistVerts(XY[num1][0], XY[num1][1], int1bX, int1bY)
-				log.Println("divLine1b=", divLine1b)
-			}
-		}
+	if chk1a < 0 {
+		divLine1a := DistVerts(XY[num1][0], XY[num1][1], int1aX, int1aY)
+		log.Println("divLine1a=", divLine1a)
 	} else {
-		// f_inf = float('inf')
-		divLine1b = math.Inf(1)
+		divLine1a = math.Inf(1)
+	}
+
+	if chk1b < 0 {
+		divLine1b = DistVerts(XY[num1][0], XY[num1][1], int1bX, int1bY)
 		log.Println("divLine1b=", divLine1b)
-	}
-	// 交点2aが R6-L1上にあるかチェックする
-	t2a := PosLine(taikoXYa[1][0], int2aX, taikoXYa[1][1], int2aY, taikoXYa[0][1], taikoXYa[0][0])
-	log.Println("t2a=", t2a)
-
-	var divLine2a float64
-	// if (taikoXYa[0][0] < int2aX && int2aX < taikoXYa[1][0]) || (taikoXYa[0][0] > int2aX && int2aX > taikoXYa[1][0]) {
-	if (taikoXYa[0][0] < int2aX && int2aX < taikoXYa[1][0]) || (taikoXYa[0][0] > int2aX && int2aX > taikoXYa[1][0]) {
-		if (taikoXYa[0][1] < int2aY && int2aY < taikoXYa[1][1]) || (taikoXYa[0][1] > int2aY && int2aY > taikoXYa[1][1]) {
-			if (int2aY*(taikoXYa[0][0]-taikoXYa[1][0]))+(taikoXYa[0][1]*(taikoXYa[1][0]-int2aX))+(taikoXYa[1][1]*(int2aX-taikoXYa[0][0])) == 0 {
-				// 交点2aまでの距離
-				divLine2a = DistVerts(XY[num2][0], XY[num2][1], int2aX, int2aY)
-				log.Println("divLine2a=", divLine2a)
-			}
-		}
 	} else {
-		// f_inf = float('inf')
-		divLine2a = math.Inf(1)
-		log.Println("divLine2a=", divLine2a)
+		divLine1b = math.Inf(1)
 	}
-	// 交点2bまでの距離
-	divLine2b := DistVerts(XY[num2][0], XY[num2][1], int2bX, int2bY)
-	log.Println("divLine2b=", divLine2b)
+
+	if chk2a < 0 {
+		divLine2a = DistVerts(XY[num2][0], XY[num2][1], int2aX, int2aY)
+		log.Println("divLine2a=", divLine2a)
+	} else {
+		divLine2a = math.Inf(1)
+	}
+
+	if chk2b < 0 {
+		divLine2b := DistVerts(XY[num2][0], XY[num2][1], int2bX, int2bY)
+		log.Println("divLine2b=", divLine2b)
+	} else {
+		divLine2b = math.Inf(1)
+	}
 
 	// 距離の短い方の線分を分割線とする
 	// 距離が無限大の分割線では四角形を分割できない

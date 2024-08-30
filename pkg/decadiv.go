@@ -262,10 +262,8 @@ func DecaDiv(cord2 [][]float64, order map[string]int, lrPtn []string,
 			octa1name, octa1L = MkoctaA2(cordz, order2, keyList, nodDec, num0, d0Num)
 			log.Println("octa1name", octa1name)
 			log.Println("octa1L=", octa1L)
-		} else if areaTag == "areaB" {
-			// areaBはareaAより必ず小さい
-			// TODO:
 		}
+		// areaBはareaAより必ず小さい
 
 	// ２－(1)
 	case "LRLRLRRRRR", "LRLRRRRRLR", "LRRRRRLRLR":

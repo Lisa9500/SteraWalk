@@ -198,7 +198,7 @@ func MakeOct7(XY [][]float64, order map[string]int) (cord [][]float64,
 	// L2点からの分割線による対向する辺との交点までの距離を求める
 	num2 := order["L2"]
 	// 対抗する辺との直交条件から型分類を行う
-	if (flagEdge2to3 == true) && (flagEdge3to4 == true) {
+	if flagEdge2to3 && flagEdge3to4 {
 		octStype := "typeA_S"
 		log.Println(octStype)
 		// L2点と対向する辺との交点を求める
@@ -416,7 +416,7 @@ func MakeOct7(XY [][]float64, order map[string]int) (cord [][]float64,
 		rect3List = MakeRectList(XY, order, rect3name)
 		log.Println("rect3List=", rect3List)
 
-	} else if (flagEdge4to5 == true) && (flagEdge5to6 == true) {
+	} else if flagEdge4to5 && flagEdge5to6 {
 		octStype := "typeB_S"
 		log.Println(octStype)
 		// L2点と対向する辺との交点を求める
@@ -644,7 +644,7 @@ func MakeOct7(XY [][]float64, order map[string]int) (cord [][]float64,
 		log.Println("rect2List=", rect2List)
 
 		// 対抗する辺との直交条件から型分類を行う
-	} else if (flagEdge2to3 == true) && (flagEdge5to6 == true) {
+	} else if flagEdge2to3 && flagEdge5to6 {
 		octStype := "Rotation_S"
 		log.Println(octStype)
 		// 2つの四角形に分割する

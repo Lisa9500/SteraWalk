@@ -26,6 +26,10 @@ func HexaDiv(XY [][]float64, order map[string]int) (cord [][]float64,
 	if val, ok := order["L1"]; ok {
 		log.Println(ok)
 		log.Println(val)
+		// 交点が対向する辺の上にあるか確認する
+		var lnincl1 bool
+		var lnincl2 bool
+
 		// L!点の頂点番号を確認する
 		for LRkey := range order {
 			log.Println("LRkey=", LRkey) // Ctrl+/
@@ -58,6 +62,10 @@ func HexaDiv(XY [][]float64, order map[string]int) (cord [][]float64,
 					// TODO:折れ曲がりの切妻屋根
 					return
 				}
+				lnchk1 := PosLine2(chokuCord1, taikoCord1)
+				if lnchk1 < 0 {
+					lnincl1 = true
+				}
 
 				// もう一方の直交する辺は．L点と1つ次の点で結ばれる線分
 				// 直交する辺の座標ペア
@@ -84,6 +92,11 @@ func HexaDiv(XY [][]float64, order map[string]int) (cord [][]float64,
 					// TODO:折れ曲がりの切妻屋根
 					return
 				}
+				lnchk2 := PosLine2(chokuCord2, taikoCord2)
+				if lnchk2 < 0 {
+					lnincl2 = true
+				}
+
 			} else {
 				// L1点が見つかるまで処理を繰り返す
 				continue
@@ -104,29 +117,32 @@ func HexaDiv(XY [][]float64, order map[string]int) (cord [][]float64,
 		// 交点２までの距離
 		divLb := DistVerts(XY[num][0], XY[num][1], int2ndX, int2ndY)
 		log.Println("divLb=", divLb)
-
-		// 交点１から隣り合うR点までの最短距離を求める
-		// D1点（交点１）と１つ前のR2点までの距離
-		D1toR2 := DistVerts(int1stX, int1stY, XY[(num+2)%6][0], XY[(num+2)%6][1])
-		// D1点（交点１）と１つ後ろのR3点までの距離
-		D1toR3 := DistVerts(int1stX, int1stY, XY[(num+3)%6][0], XY[(num+3)%6][1])
 		var D1splt float64
-		if D1toR2 < D1toR3 {
-			D1splt = D1toR2
-		} else {
-			D1splt = D1toR3
-		}
-
-		// 交点２から隣り合うR点までの最短距離を求める
-		// D2点（交点２）と１つ前のR3点までの距離
-		D2toR3 := DistVerts(int2ndX, int2ndY, XY[(num+3)%6][0], XY[(num+3)%6][1])
-		// D2点（交点２）と１つ後ろのR4点までの距離
-		D2toR4 := DistVerts(int2ndX, int2ndY, XY[(num+4)%6][0], XY[(num+4)%6][1])
 		var D2splt float64
-		if D2toR3 < D2toR4 {
-			D2splt = D2toR3
-		} else {
-			D2splt = D2toR4
+
+		if lnincl1 {
+			// 交点１から隣り合うR点までの最短距離を求める
+			// D1点（交点１）と１つ前のR2点までの距離
+			D1toR2 := DistVerts(int1stX, int1stY, XY[(num+2)%6][0], XY[(num+2)%6][1])
+			// D1点（交点１）と１つ後ろのR3点までの距離
+			D1toR3 := DistVerts(int1stX, int1stY, XY[(num+3)%6][0], XY[(num+3)%6][1])
+			if D1toR2 < D1toR3 {
+				D1splt = D1toR2
+			} else {
+				D1splt = D1toR3
+			}
+		}
+		if lnincl2 {
+			// 交点２から隣り合うR点までの最短距離を求める
+			// D2点（交点２）と１つ前のR3点までの距離
+			D2toR3 := DistVerts(int2ndX, int2ndY, XY[(num+3)%6][0], XY[(num+3)%6][1])
+			// D2点（交点２）と１つ後ろのR4点までの距離
+			D2toR4 := DistVerts(int2ndX, int2ndY, XY[(num+4)%6][0], XY[(num+4)%6][1])
+			if D2toR3 < D2toR4 {
+				D2splt = D2toR3
+			} else {
+				D2splt = D2toR4
+			}
 		}
 
 		// 四角形のスライスを用意する

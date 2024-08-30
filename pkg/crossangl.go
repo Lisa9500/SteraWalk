@@ -11,8 +11,6 @@ func CrossAngl(ax, ay, bx, by float64) (deg float64) {
 	// cosθからアークコサインで角度（ラジアン→度）を求める
 	deg = math.Acos(cosT) * (180 / math.Pi)
 	// log.Println("角度", deg) // Ctrl+/
-	if deg < 0 {
-		// TODO:
-	}
+
 	return deg
 }

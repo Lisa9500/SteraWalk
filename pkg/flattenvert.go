@@ -3,13 +3,13 @@ package pkg
 import "log"
 
 // FlatVert は内角が約180°の頂点を削除する
-func FlatVert(num int, XY [][]float64, ext []float64, deg []float64) (nodz int,
-	cordz [][]float64, extLz []float64, degLz []float64) {
+func FlatVert(num int, XY [][]float64, ext []float64, deg []float64) (nod2 int,
+	cord2 [][]float64, ext2 []float64, deg2 []float64) {
 
 	var fltLst []int
 	for i := 0; i < num; i++ {
 		// if (175.0 < deg[i]) && (deg[i] < 185.0) {
-		if deg[i] > 175.0 {
+		if deg[i] > 170.0 {
 			fltLst = append(fltLst, i)
 		}
 	}
@@ -27,9 +27,10 @@ func FlatVert(num int, XY [][]float64, ext []float64, deg []float64) (nodz int,
 			inCnt++
 		}
 	}
-	nodz = num - delCnt
-	cordz = XY
-	extLz = ext
-	degLz = deg
-	return nodz, cordz, extLz, degLz
+	nod2 = num - delCnt
+	cord2 = XY
+	ext2 = ext
+	deg2 = deg
+
+	return nod2, cord2, ext2, deg2
 }
