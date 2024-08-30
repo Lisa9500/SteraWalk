@@ -439,6 +439,11 @@ func exverpoly(f *os.File, i, pm_cnt, vcnt, v_num, story int, yane string) {
 			vcount = append(vcount, 3)
 		}
 	}
+	if yane == "5kakudou" {
+		for j := 0; j < 29; j++ {
+			vcount = append(vcount, 3)
+		}
+	}
 	if yane == "heprec" {
 		for j := 0; j < 14; j++ {
 			vcount = append(vcount, 3)
@@ -604,6 +609,7 @@ func BuildDAE() {
 	for r := range rectList {
 		i := r + 1
 		log.Println("ID=", rectList[i-1].ID)
+		log.Println("Type=", rectList[i-1].Type)
 
 		// 頂点数のチェック
 		vcnt := len(rectList[i-1].List)
@@ -613,6 +619,7 @@ func BuildDAE() {
 
 		// 建物階数の定義
 		story := rectList[i-1].Story
+		log.Println("rectList[i-1].Story=", story)
 
 		// 面頂点数・座標データ数の総和
 		// 屋根タイプにより変化する
@@ -660,6 +667,13 @@ func BuildDAE() {
 			cnt = cnt + (((3+3)*2+4*3)*2+3*3)*3
 			// 切妻屋根の面数／(2x2+3)×2+3=16
 			pm_cnt = pm_cnt + ((4+3)*2 + 3)
+		} else if rectList[i-1].Type == "5kakudou" {
+			// 三角形片流れ屋根の頂点数／3x5x2+3x2x5=60
+			v_num = v_num + 3*5*2 + 3*2*5
+			// 三角形片流れ屋根の頂点データ数／(3x5x2+3x2x5)x3=180
+			cnt = cnt + (3*5*2+3*2*5)*3
+			// 三角形片流れ屋根の面数／5x2+2x5=30
+			pm_cnt = pm_cnt + (5*2 + 2*5)
 		} else if rectList[i-1].Type == "heprec" {
 			// 変形片流れ屋根の頂点数／(2x2+2x4+2)x3=42
 			v_num = v_num + (2*2+2*4+2)*3
@@ -745,9 +759,6 @@ func BuildDAE() {
 			keraba := 0.15
 			incline := 0.2 // ２寸勾配
 			yaneatu := 0.15
-			// var mtemp, ntemp []float64
-			// var sh1temp float64
-			// var sh2temp float64
 
 			// 片流れ屋根の頂点の法線ベクトルをリストにテキスト化して書き出す
 			yanetxt, yanenor = KataYane(rectList[i-1].List, toph, hisashi, keraba, incline, yaneatu)
@@ -802,6 +813,15 @@ func BuildDAE() {
 
 			// ５角形屋根の切妻屋根の頂点の法線ベクトルをリストにテキスト化して書き出す
 			yanetxt, yanenor = Kiri5Yane(rectList[i-1].List, toph, hisashi, keraba, incline, yaneatu)
+
+		} else if rectList[i-1].Type == "5kakudou" {
+			// 軒庇の出とケラバの厚さを設定する
+			hisashi := 0.60
+			incline := 0.45
+			yaneatu := 0.11
+
+			// ５角形屋根の切妻屋根の頂点の法線ベクトルをリストにテキスト化して書き出す
+			yanetxt, yanenor = Kakudou5(rectList[i-1].List, toph, hisashi, incline, yaneatu)
 		}
 
 		// 建物モデル（直方体）を基面，底面，各階，上面，側面の順に書き出す
@@ -912,8 +932,25 @@ func BuildDAE() {
 		vcnt := len(kList[i-1].Cords)
 		log.Println("vertex=", vcnt)
 
+		// 建ぺい率・容積率の設定
+		bcr := kList[i-1].Build
+		far := kList[i-1].Floor
+
+		// 用途地域番号の読み込み
+		youto := kList[i-1].Area
+		// log.Println("youto=", youto)
+		anum := AreaNum(youto)
+		// log.Println("anum=", anum)
+		areanum = append(areanum, anum)
+
 		// 建物階数の定義
-		story := kList[i-1].Story
+		st := kList[i-1].Story
+		log.Println("st=", st)
+
+		// TODO: 読み込んだ建物階数を乱数で生成した階数に置き換えて反映させるひつようがある
+		// 建物の上面高さの設定
+		// 建物の階数が設定されていない場合は乱数で建物階数を設定する
+		story := Stcalc(st, bcr, far, anum)
 		log.Println("story=", story)
 
 		// 面頂点数・座標データ数の総和
@@ -924,14 +961,8 @@ func BuildDAE() {
 
 		// 基準面（地盤高さ）の設定
 		level := kList[i-1].Elv
-
-		// 建ぺい率・容積率の設定
-		bcr := kList[i-1].Build
-		far := kList[i-1].Floor
-
-		// 建物の上面高さの設定
-		// 建物の階数が設定されていない場合は乱数で建物階数を設定する
-		toph = level + Stcalc(story, bcr, far)
+		// toph は関数ではなく単純に階数から求める方が良い
+		toph = level + float64(story)*3.3
 		log.Println("toph=", toph)
 
 		// 建物地下部分のモデリングのための地下深さの設定
@@ -939,13 +970,6 @@ func BuildDAE() {
 		bf := kList[i-1].Basement
 		btm = Bfcalc(level, story, bf)
 		// log.Println("btm=", btm)
-
-		// 用途地域番号の読み込み
-		youto := kList[i-1].Area
-		// log.Println("youto=", youto)
-		anum := AreaNum(youto)
-		// log.Println("anum=", anum)
-		areanum = append(areanum, anum)
 
 		// library_geometries(Position)の書き出し
 		lib_geo_pos(f, i+lr+lp, cnt)
