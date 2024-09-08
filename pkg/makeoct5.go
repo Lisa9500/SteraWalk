@@ -24,12 +24,12 @@ func MakeOct5(XY [][]float64, order map[string]int) (cord [][]float64,
 	chokuCord1a[1] = XY[num1P1a]
 	// L1点と1つ前の点の間の距離
 	dl1p1a := DistVerts(XY[num1][0], XY[num1][1], XY[num1P1a][0], XY[num1P1a][1])
-	// 対向する辺は，L1点から４つ目と５つ目の点で結ばれる線分
+	// 対向する辺は，L1点から２つ目と３つ目の点で結ばれる線分
 	// 対向する辺の座標ペア
 	taikoCord1a := make([][]float64, 2)
-	num1P2a := (num1 + 4) % nodOct
+	num1P2a := (num1 + 2) % nodOct
 	taikoCord1a[0] = XY[num1P2a]
-	num1P3a := (num1 + 5) % nodOct
+	num1P3a := (num1 + 3) % nodOct
 	taikoCord1a[1] = XY[num1P3a]
 	// 直交する直線1aと対向する辺との直交条件を確認する
 	int1aX, int1aY, theta := OrthoAngle(chokuCord1a, taikoCord1a)
