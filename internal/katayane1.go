@@ -102,7 +102,6 @@ func KataYane1(list [][]float64, toph, hisashi, keraba, incline,
 	var normal []float64
 	var nor []float64
 	p := make([][]float64, 3)
-	s := make([][]float64, 4)
 
 	yanepoly = append(yanepoly, xo1, yo1, mbt) // 屋根底面・三角形１
 	yanepoly = append(yanepoly, xo3, yo3, nbt)
@@ -170,16 +169,25 @@ func KataYane1(list [][]float64, toph, hisashi, keraba, incline,
 		nor_all = append(nor_all, nor)
 	}
 
-	yanepoly = append(yanepoly, xtp1, ytp1, mtp) // 棟端
+	yanepoly = append(yanepoly, xtp1, ytp1, mtp) // 棟端１・三角形-1
 	yanepoly = append(yanepoly, xo1, yo1, mbt)
 	yanepoly = append(yanepoly, xo2, yo2, mbt)
+	p[0] = []float64{xtp1, ytp1, mtp}
+	p[1] = []float64{xo1, yo1, mbt}
+	p[2] = []float64{xo2, yo2, mbt}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
+		nor_all = append(nor_all, nor)
+	}
+
+	yanepoly = append(yanepoly, xtp1, ytp1, mtp) // 棟端２・三角形-2
+	yanepoly = append(yanepoly, xo2, yo2, mbt)
 	yanepoly = append(yanepoly, xtp2, ytp2, mtp)
-	s[0] = []float64{xtp1, ytp1, mtp}
-	s[1] = []float64{xo1, yo1, mbt}
-	s[2] = []float64{xo2, yo2, mbt}
-	s[3] = []float64{xtp2, ytp2, mtp}
-	for j := 0; j < 4; j++ {
-		nor = pkg.NorVec(s[(0+j)%4], s[(1+j)%4], s[(2+j)%4])
+	p[0] = []float64{xtp1, ytp1, mtp}
+	p[1] = []float64{xo2, yo2, mbt}
+	p[2] = []float64{xtp2, ytp2, mtp}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
 		nor_all = append(nor_all, nor)
 	}
 
@@ -318,18 +326,27 @@ func KataYane1(list [][]float64, toph, hisashi, keraba, incline,
 	}
 	nor_all = append(nor_all, nor)
 
-	yanepoly = append(yanepoly, x1, y1, sh1) // 背面
+	yanepoly = append(yanepoly, x1, y1, sh1) // 背面・三角形-1
 	yanepoly = append(yanepoly, x1, y1, sh0)
 	yanepoly = append(yanepoly, x2, y2, sh0)
-	yanepoly = append(yanepoly, x2, y2, sh2)
-	s[0] = []float64{x1, y1, sh1}
-	s[1] = []float64{x1, y1, sh0}
-	s[2] = []float64{x2, y2, sh0}
-	s[3] = []float64{x2, y2, sh2}
-	for j := 0; j < 4; j++ {
-		nor = pkg.NorVec(s[(0+j)%4], s[(1+j)%4], s[(2+j)%4])
+	p[0] = []float64{x1, y1, sh1}
+	p[1] = []float64{x1, y1, sh0}
+	p[2] = []float64{x2, y2, sh0}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
+		nor_all = append(nor_all, nor)
 	}
-	nor_all = append(nor_all, nor)
+
+	yanepoly = append(yanepoly, x1, y1, sh1) // 背面・三角形-2
+	yanepoly = append(yanepoly, x2, y2, sh0)
+	yanepoly = append(yanepoly, x2, y2, sh2)
+	p[0] = []float64{x1, y1, sh1}
+	p[1] = []float64{x2, y2, sh0}
+	p[2] = []float64{x2, y2, sh2}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
+		nor_all = append(nor_all, nor)
+	}
 
 	// 頂点座標法線ベクトルの書き出し
 	for j := range nor_all {

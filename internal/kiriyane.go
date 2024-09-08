@@ -117,7 +117,6 @@ func KiriYane(list [][]float64, toph, hisashi, keraba, incline,
 	var normal []float64
 	var nor []float64
 	p := make([][]float64, 3)
-	s := make([][]float64, 4)
 
 	yanepoly = append(yanepoly, xo1, yo1, nbt) // 屋根底面・三角形１
 	yanepoly = append(yanepoly, xo4, yo4, nbt)
@@ -207,81 +206,135 @@ func KiriYane(list [][]float64, toph, hisashi, keraba, incline,
 		nor_all = append(nor_all, nor)
 	}
 
-	yanepoly = append(yanepoly, xtp2, ytp2, ntp) // 軒端１
+	yanepoly = append(yanepoly, xtp2, ytp2, ntp) //  軒端１・三角形-1
 	yanepoly = append(yanepoly, xo2, yo2, nbt)
+	yanepoly = append(yanepoly, xo3, yo3, nbt)
+	p[0] = []float64{xtp2, ytp2, ntp}
+	p[1] = []float64{xo2, yo2, nbt}
+	p[2] = []float64{xo3, yo3, nbt}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
+		nor_all = append(nor_all, nor)
+	}
+
+	yanepoly = append(yanepoly, xtp2, ytp2, ntp) //  軒端１・三角形-2
 	yanepoly = append(yanepoly, xo3, yo3, nbt)
 	yanepoly = append(yanepoly, xtp3, ytp3, ntp)
-	s[0] = []float64{xtp2, ytp2, ntp}
-	s[1] = []float64{xo2, yo2, nbt}
-	s[2] = []float64{xo3, yo3, nbt}
-	s[3] = []float64{xtp3, ytp3, ntp}
-	for j := 0; j < 4; j++ {
-		nor = pkg.NorVec(s[(0+j)%4], s[(1+j)%4], s[(2+j)%4])
+	p[0] = []float64{xtp2, ytp2, ntp}
+	p[1] = []float64{xo3, yo3, nbt}
+	p[2] = []float64{xtp3, ytp3, ntp}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
 		nor_all = append(nor_all, nor)
 	}
 
-	yanepoly = append(yanepoly, xtp4, ytp4, ntp) // 軒端２
+	yanepoly = append(yanepoly, xtp4, ytp4, ntp) //  軒端２・三角形-1
 	yanepoly = append(yanepoly, xo4, yo4, nbt)
+	yanepoly = append(yanepoly, xo1, yo1, nbt)
+	p[0] = []float64{xtp4, ytp4, ntp}
+	p[1] = []float64{xo4, yo4, nbt}
+	p[2] = []float64{xo1, yo1, nbt}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
+		nor_all = append(nor_all, nor)
+	}
+
+	yanepoly = append(yanepoly, xtp4, ytp4, ntp) //  軒端２・三角形-2
 	yanepoly = append(yanepoly, xo1, yo1, nbt)
 	yanepoly = append(yanepoly, xtp1, ytp1, ntp)
-	s[0] = []float64{xtp4, ytp4, ntp}
-	s[1] = []float64{xo4, yo4, nbt}
-	s[2] = []float64{xo1, yo1, nbt}
-	s[3] = []float64{xtp1, ytp1, ntp}
-	for j := 0; j < 4; j++ {
-		nor = pkg.NorVec(s[(0+j)%4], s[(1+j)%4], s[(2+j)%4])
+	p[0] = []float64{xtp4, ytp4, ntp}
+	p[1] = []float64{xo1, yo1, nbt}
+	p[2] = []float64{xtp1, ytp1, ntp}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
 		nor_all = append(nor_all, nor)
 	}
 
-	yanepoly = append(yanepoly, xtp1, ytp1, ntp) // ケラバ１
+	yanepoly = append(yanepoly, xtp1, ytp1, ntp) // ケラバ１・三角形-1
 	yanepoly = append(yanepoly, xo1, yo1, nbt)
 	yanepoly = append(yanepoly, xm1, ym1, mbt1)
-	yanepoly = append(yanepoly, xm1, ym1, mtp1)
-	s[0] = []float64{xtp1, ytp1, ntp}
-	s[1] = []float64{xo1, yo1, nbt}
-	s[2] = []float64{xm1, ym1, mbt1}
-	s[3] = []float64{xm1, ym1, mtp1}
-	for j := 0; j < 4; j++ {
-		nor = pkg.NorVec(s[(0+j)%4], s[(1+j)%4], s[(2+j)%4])
+	p[0] = []float64{xtp1, ytp1, ntp}
+	p[1] = []float64{xo1, yo1, nbt}
+	p[2] = []float64{xm1, ym1, mbt1}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
 		nor_all = append(nor_all, nor)
 	}
 
-	yanepoly = append(yanepoly, xm1, ym1, mtp1) // ケラバ２
+	yanepoly = append(yanepoly, xtp1, ytp1, ntp) // ケラバ１・三角形-2
+	yanepoly = append(yanepoly, xm1, ym1, mbt1)
+	yanepoly = append(yanepoly, xm1, ym1, mtp1)
+	p[0] = []float64{xtp1, ytp1, ntp}
+	p[1] = []float64{xm1, ym1, mbt1}
+	p[2] = []float64{xm1, ym1, mtp1}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
+		nor_all = append(nor_all, nor)
+	}
+
+	yanepoly = append(yanepoly, xm1, ym1, mtp1) // ケラバ２・三角形-1
 	yanepoly = append(yanepoly, xm1, ym1, mbt1)
 	yanepoly = append(yanepoly, xo2, yo2, nbt)
-	yanepoly = append(yanepoly, xtp2, ytp2, ntp)
-	s[0] = []float64{xm1, ym1, mtp1}
-	s[1] = []float64{xm1, ym1, mbt1}
-	s[2] = []float64{xo2, yo2, nbt}
-	s[3] = []float64{xtp2, ytp2, ntp}
-	for j := 0; j < 4; j++ {
-		nor = pkg.NorVec(s[(0+j)%4], s[(1+j)%4], s[(2+j)%4])
+	p[0] = []float64{xm1, ym1, mtp1}
+	p[1] = []float64{xm1, ym1, mbt1}
+	p[2] = []float64{xo2, yo2, nbt}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
 		nor_all = append(nor_all, nor)
 	}
 
-	yanepoly = append(yanepoly, xtp3, ytp3, ntp) // ケラバ３
+	yanepoly = append(yanepoly, xm1, ym1, mtp1) // ケラバ２・三角形-2
+	yanepoly = append(yanepoly, xo2, yo2, nbt)
+	yanepoly = append(yanepoly, xtp2, ytp2, ntp)
+	p[0] = []float64{xm1, ym1, mtp1}
+	p[1] = []float64{xo2, yo2, nbt}
+	p[2] = []float64{xtp2, ytp2, ntp}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
+		nor_all = append(nor_all, nor)
+	}
+
+	yanepoly = append(yanepoly, xtp3, ytp3, ntp) // ケラバ３・三角形-1
 	yanepoly = append(yanepoly, xo3, yo3, nbt)
 	yanepoly = append(yanepoly, xm2, ym2, mbt2)
-	yanepoly = append(yanepoly, xm2, ym2, mtp2)
-	s[0] = []float64{xtp3, ytp3, ntp}
-	s[1] = []float64{xo3, yo3, nbt}
-	s[2] = []float64{xm2, ym2, mbt2}
-	s[3] = []float64{xm2, ym2, mtp2}
-	for j := 0; j < 4; j++ {
-		nor = pkg.NorVec(s[(0+j)%4], s[(1+j)%4], s[(2+j)%4])
+	p[0] = []float64{xtp3, ytp3, ntp}
+	p[1] = []float64{xo3, yo3, nbt}
+	p[2] = []float64{xm2, ym2, mbt2}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
 		nor_all = append(nor_all, nor)
 	}
 
-	yanepoly = append(yanepoly, xm2, ym2, mtp2) // ケラバ４
+	yanepoly = append(yanepoly, xtp3, ytp3, ntp) // ケラバ３・三角形-2
+	yanepoly = append(yanepoly, xm2, ym2, mbt2)
+	yanepoly = append(yanepoly, xm2, ym2, mtp2)
+	p[0] = []float64{xtp3, ytp3, ntp}
+	p[1] = []float64{xm2, ym2, mbt2}
+	p[2] = []float64{xm2, ym2, mtp2}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
+		nor_all = append(nor_all, nor)
+	}
+
+	yanepoly = append(yanepoly, xm2, ym2, mtp2) // ケラバ４・三角形-1
 	yanepoly = append(yanepoly, xm2, ym2, mbt2)
 	yanepoly = append(yanepoly, xo4, yo4, nbt)
+	p[0] = []float64{xm2, ym2, mtp2}
+	p[1] = []float64{xm2, ym2, mbt2}
+	p[2] = []float64{xo4, yo4, nbt}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
+		nor_all = append(nor_all, nor)
+	}
+
+	yanepoly = append(yanepoly, xm2, ym2, mtp2) // ケラバ４・三角形-2
+	yanepoly = append(yanepoly, xo4, yo4, nbt)
 	yanepoly = append(yanepoly, xtp4, ytp4, ntp)
-	s[0] = []float64{xm2, ym2, mtp2}
-	s[1] = []float64{xm2, ym2, mbt2}
-	s[2] = []float64{xo4, yo4, nbt}
-	s[3] = []float64{xtp4, ytp4, ntp}
-	for j := 0; j < 4; j++ {
-		nor = pkg.NorVec(s[(0+j)%4], s[(1+j)%4], s[(2+j)%4])
+	p[0] = []float64{xm2, ym2, mtp2}
+	p[1] = []float64{xo4, yo4, nbt}
+	p[2] = []float64{xtp4, ytp4, ntp}
+	for j := 0; j < 3; j++ {
+		nor = pkg.NorVec(p[(0+j)%3], p[(1+j)%3], p[(2+j)%3])
 		nor_all = append(nor_all, nor)
 	}
 

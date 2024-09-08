@@ -380,13 +380,7 @@ func exverpoly(f *os.File, i, pm_cnt, vcnt, v_num, story int, yane string) {
 	}
 	// 屋根モデルのvcountの出力
 	if yane == "kiri" {
-		for j := 0; j < 8; j++ {
-			vcount = append(vcount, 3)
-		}
-		for j := 8; j < 14; j++ {
-			vcount = append(vcount, 4)
-		}
-		for j := 14; j < 16; j++ {
+		for j := 0; j < 22; j++ {
 			vcount = append(vcount, 3)
 		}
 	}
@@ -396,31 +390,13 @@ func exverpoly(f *os.File, i, pm_cnt, vcnt, v_num, story int, yane string) {
 		}
 	}
 	if yane == "kata" {
-		for j := 0; j < 6; j++ {
+		for j := 0; j < 16; j++ {
 			vcount = append(vcount, 3)
-		}
-		for j := 6; j < 7; j++ {
-			vcount = append(vcount, 4)
-		}
-		for j := 7; j < 13; j++ {
-			vcount = append(vcount, 3)
-		}
-		for j := 13; j < 14; j++ {
-			vcount = append(vcount, 4)
 		}
 	}
 	if yane == "kata1" || yane == "kata2" {
-		for j := 0; j < 6; j++ {
+		for j := 0; j < 18; j++ {
 			vcount = append(vcount, 3)
-		}
-		for j := 6; j < 7; j++ {
-			vcount = append(vcount, 4)
-		}
-		for j := 7; j < 15; j++ {
-			vcount = append(vcount, 3)
-		}
-		for j := 15; j < 16; j++ {
-			vcount = append(vcount, 4)
 		}
 	}
 	if yane == "penta" {
@@ -429,13 +405,7 @@ func exverpoly(f *os.File, i, pm_cnt, vcnt, v_num, story int, yane string) {
 		}
 	}
 	if yane == "kiri5" {
-		for j := 0; j < 8; j++ {
-			vcount = append(vcount, 3)
-		}
-		for j := 8; j < 14; j++ {
-			vcount = append(vcount, 4)
-		}
-		for j := 14; j < 17; j++ {
+		for j := 0; j < 23; j++ {
 			vcount = append(vcount, 3)
 		}
 	}
@@ -626,12 +596,12 @@ func BuildDAE() {
 		// v_num, cnt, pm_cnt := counter(vcnt)
 		v_num, cnt, pm_cnt := counter(vcnt, story)
 		if rectList[i-1].Type == "kiri" {
-			// 切妻屋根の頂点数／(3+3+3+3+4+4+4)×2+3x2=54
-			v_num = v_num + ((3+3)*2+4*3)*2 + 3*2
-			// 切妻屋根の頂点データ数／((3+3+3+3+4+4+4)×2+3x2)x3=162
-			cnt = cnt + (((3+3)*2+4*3)*2+3*2)*3
-			// 切妻屋根の面数／(2x2+3)×2+2=16
-			pm_cnt = pm_cnt + ((4+3)*2 + 2)
+			// 切妻屋根の頂点数／(3+3+3+3+3x2+3x2+3x2)×2+3x2=66
+			v_num = v_num + ((3+3)*2+3*2*3)*2 + 3*2
+			// 切妻屋根の頂点データ数／((3+3+3+3+3x2+3x2+3x2)×2+3x2)x3=198
+			cnt = cnt + (((3+3)*2+3*2*3)*2+3*2)*3
+			// 切妻屋根の面数／(2x2+3x2)×2+2=22
+			pm_cnt = pm_cnt + ((2*2+3*2)*2 + 2)
 		} else if rectList[i-1].Type == "yose" {
 			// 寄棟屋根の頂点数／(3x2+3x2x2)x2+3x2x4=60
 			v_num = v_num + ((3*2+3*2*2)*2 + 3*2*4)
@@ -640,19 +610,19 @@ func BuildDAE() {
 			// 寄棟屋根の面数／(2+2x2)x2+2x4=20
 			pm_cnt = pm_cnt + ((2+2*2)*2 + 2*4)
 		} else if rectList[i-1].Type == "kata" {
-			// 片流れ屋根の頂点数／3x2x2+3x2+4+3x2x2+3x2+4=44
-			v_num = v_num + (3*2*2 + 3*2 + 4 + 3*2*2 + 3*2 + 4)
-			// 片流れ屋根の頂点データ数／(3x2x2+3x2+4+3x2x2+3x2+4)x3=132
-			cnt = cnt + (3*2*2+3*2+4+3*2*2+3*2+4)*3
-			// 片流れ屋根の面数／2x2+2+1+2x2+2+1=14
-			pm_cnt = pm_cnt + (2*2 + 2 + 1 + 2*2 + 2 + 1)
+			// 片流れ屋根の頂点数／3x2x2+3x2+3x2+3x2x2+3x2+3x2=48
+			v_num = v_num + (3*2*2 + 3*2 + 3*2 + 3*2*2 + 3*2 + 3*2)
+			// 片流れ屋根の頂点データ数／(3x2x2+3x2+3x2+3x2x2+3x2+3x2)x3=144
+			cnt = cnt + (3*2*2+3*2+3*2+3*2*2+3*2+3*2)*3
+			// 片流れ屋根の面数／2x2+2+2+2x2+2+2=16
+			pm_cnt = pm_cnt + (2*2 + 2 + 2 + 2*2 + 2 + 2)
 		} else if rectList[i-1].Type == "kata1" || rectList[i-1].Type == "kata2" {
-			// 片流れ屋根の頂点数／3x2x2+3x2+4+3x2x2+3x4+4=44
-			v_num = v_num + (3*2*2 + 3*2 + 4 + 3*2*2 + 3*4 + 4)
-			// 片流れ屋根の頂点データ数／(3x2x2+3x2+4+3x2x2+3x4+4)x3=132
-			cnt = cnt + (3*2*2+3*2+4+3*2*2+3*4+4)*3
-			// 片流れ屋根の面数／2x2+2+1+2x2+4+1=14
-			pm_cnt = pm_cnt + (2*2 + 2 + 1 + 2*2 + 4 + 1)
+			// 片流れ屋根の頂点数／3x2x2+3x2+3x2+3x2x2+3x4+3x2=54
+			v_num = v_num + (3*2*2 + 3*2 + 3*2 + 3*2*2 + 3*4 + 3*2)
+			// 片流れ屋根の頂点データ数／(3x2x2+3x2+3x2+3x2x2+3x4+3x2)x3=162
+			cnt = cnt + (3*2*2+3*2+3*2+3*2*2+3*4+3*2)*3
+			// 片流れ屋根の面数／2x2+2+2+2x2+4+2=18
+			pm_cnt = pm_cnt + (2*2 + 2 + 2 + 2*2 + 4 + 2)
 		} else if rectList[i-1].Type == "penta" {
 			// ５角形屋根の頂点数／((2x2+2x2+2x2)+(2+2+2+2+2+2)+1)x3=75
 			v_num = v_num + ((2*2*3)+(2*6)+1)*3
@@ -661,12 +631,12 @@ func BuildDAE() {
 			// ５角形屋根の面数／(2x2+2x2+2x2)+(2+2+2+2+2+2)+1=25
 			pm_cnt = pm_cnt + ((2 * 2 * 3) + (2 * 6) + 1)
 		} else if rectList[i-1].Type == "kiri5" {
-			// 切妻屋根の頂点数／(3+3+3+3+4+4+4)×2+3x3=54
-			v_num = v_num + ((3+3)*2+4*3)*2 + 3*3
-			// 切妻屋根の頂点データ数／((3+3+3+3+4+4+4)×2+3x3)x3=162
-			cnt = cnt + (((3+3)*2+4*3)*2+3*3)*3
-			// 切妻屋根の面数／(2x2+3)×2+3=16
-			pm_cnt = pm_cnt + ((4+3)*2 + 3)
+			// 切妻屋根の頂点数／(3+3+3+3+3x2+3x2+3x2)×2+3x3=69
+			v_num = v_num + ((3+3)*2+3*2*3)*2 + 3*3
+			// 切妻屋根の頂点データ数／((3+3+3+3+3x2+3x2+3x2)×2+3x3)x3=207
+			cnt = cnt + (((3+3)*2+3*2*3)*2+3*3)*3
+			// 切妻屋根の面数／(2x2+3x2)×2+3=23
+			pm_cnt = pm_cnt + ((2*2+3*2)*2 + 3)
 		} else if rectList[i-1].Type == "5kakudou" {
 			// 三角形片流れ屋根の頂点数／3x5x2+3x2x5=60
 			v_num = v_num + 3*5*2 + 3*2*5
